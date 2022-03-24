@@ -1403,7 +1403,7 @@ input::placeholder {
   z-index: -999;
   width: 100%;
   height: 100%;
-  background: url(https://www.ecy.cc/d/file/20220227/05dc350fb239ab89ea3178f387eaf8c7.jpg);
+  background: #efefef;
   background-attachment: local;
   background-position: center;
   -webkit-background-size: cover;
