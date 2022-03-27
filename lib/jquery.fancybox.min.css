@@ -123,8 +123,8 @@ hue-6-2: #e6c07b
   display: inline-block;
   overflow: hidden;
   /* background: #888888; To have gray placeholders while the gallery is loading with waitThumbnailsLoad = false */
-  filter: "alpha(opacity=10)";
-  opacity: 0.1;
+  filter: "alpha(opacity=0)";
+  opacity: 0;
   margin: 0;
   padding: 0;
 }
