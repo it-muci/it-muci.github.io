@@ -124,4 +124,18 @@ hexo d
         <tag>博客</tag>
       </tags>
   </entry>
+  <entry>
+    <title>疫情</title>
+    <url>/2022/03/29/%E7%96%AB%E6%83%85/</url>
+    <content><![CDATA[ <iframe  
+ height=850 
+ width=90% 
+ src="https://download.usaz.cn/BiLiBiLi/Virus/"  
+ frameborder=0  
+ allowfullscreen>
+ </iframe>]]></content>
+      <tags>
+        <tag>疫情</tag>
+      </tags>
+  </entry>
 </search>
