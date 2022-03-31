@@ -1,51 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search> 
-  
-  
-    
-    <entry>
-      <title>记一次U盘修复</title>
-      <link href="/2022/03/31/ji-yi-ci-u-pan-xiu-fu/"/>
-      <url>/2022/03/31/ji-yi-ci-u-pan-xiu-fu/</url>
-      
-        <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="https://cdn.jsdelivr.net/npm/meting/dist/Meting.min.js"></script><h1 id="记一次U盘修复"><a href="#记一次U盘修复" class="headerlink" title="记一次U盘修复"></a>记一次U盘修复</h1><h2 id="事情起因"><a href="#事情起因" class="headerlink" title="事情起因"></a>事情起因</h2>]]></content>
-      
-      
-      
-        <tags>
-            
-            <tag> U盘 </tag>
-            
-            <tag> 量产 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>我的第一篇博客</title>
-      <link href="/2022/03/29/wo-de-di-yi-pian-bo-ke/"/>
-      <url>/2022/03/29/wo-de-di-yi-pian-bo-ke/</url>
-      
-        <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="https://cdn.jsdelivr.net/npm/meting/dist/Meting.min.js"></script><h1 id="Windows搭建自己的博客"><a href="#Windows搭建自己的博客" class="headerlink" title="Windows搭建自己的博客"></a>Windows搭建自己的博客</h1><h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><h3 id="软件配置"><a href="#软件配置" class="headerlink" title="软件配置"></a>软件配置</h3><ol><li><p>安装<a href="https://nodejs.org/en/">node.js</a> ;选择LTS即可</p></li><li><p>安装后利用</p><pre class="line-numbers language-bash"><code class="language-bash">node -v<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>查看节点版本;</p><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">npm</span> -v<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>查看包管理器的版本</p></li><li><p>安装<a href="https://git-scm.com/downloads">Git</a></p></li></ol><h3 id="hexo框架安装"><a href="#hexo框架安装" class="headerlink" title="hexo框架安装"></a>hexo框架安装</h3><ol><li><p>利用镜像源下载安装cnpm</p><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> -g cnpm --registry<span class="token operator">=</span>https://registry.npm.taobao.org<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li><li><p>查看cnpm版本</p><pre class="line-numbers language-bash"><code class="language-bash">cnpm -v<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li><li><p>安装hexo</p><pre class="line-numbers language-bash"><code class="language-bash">cnpm <span class="token function">install</span> -g hexo-cli<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li><li><p>验证是否成功</p><pre class="line-numbers language-bash"><code class="language-bash">hexo -v<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li></ol><h3 id="搭建个人博客"><a href="#搭建个人博客" class="headerlink" title="搭建个人博客"></a>搭建个人博客</h3><ol><li><p>建立并进入文件夹blog</p><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">mkdir</span> blog<span class="token function">cd</span> blog/<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li><li><p>已经安装好git后，打开blog所在文件夹，右键git bash即可</p></li><li><p>生成博客-启动博客</p><pre class="line-numbers language-bash"><code class="language-bash">hexo inithexo s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li><li><p>进入端口地址，可以看到你的博客，切忌用ctrl+c</p></li><li><p>新建一个博客</p><pre class="line-numbers language-bash"><code class="language-bash">hexo n <span class="token string">"我的第一个博客"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li><li><p>进入blog文件夹下source下_posts里面找到你新建的博客，用typero打开写入你想要展示的内容。</p></li><li><p>编辑完后回到git bash输入</p><pre class="line-numbers language-bash"><code class="language-bash">hexo cleanhexo ghexo s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></li><li><p>上面代码分别输入，分别代表清理博客-生成博客-预览博客</p></li></ol><h3 id="部署到gitee上"><a href="#部署到gitee上" class="headerlink" title="部署到gitee上"></a>部署到gitee上</h3><ol><li><p>gitee注册账号 新建仓库 注意仓库名与昵称保持一致，并记住这个账户名和密码 后面要用</p></li><li><p>安装git插件</p><pre class="line-numbers language-bash"><code class="language-bash">cnpm <span class="token function">install</span> hexo-deployer-git --save<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li><li><p>修改_config.yml文件，windows直接用vs code打开即可，最好不用记事本</p></li><li><p>进行远端部署</p><pre class="line-numbers language-bash"><code class="language-bash">hexo cleanhexo ghexo shexo d<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li><li><p>刷新仓库，可以看到blog下的文件被更新到了仓库下了，也可以通过此步骤来检测前面的步骤是否正确。’</p></li><li><p>最后进入gitee仓库，点击上方服务选择Gitee Pages，下方强制https最好勾上。</p></li><li><p>配置好后点击gitee pages弹出网址即可预览到你的博客。</p></li></ol><h3 id="主题设置"><a href="#主题设置" class="headerlink" title="主题设置"></a>主题设置</h3><ol><li><p>找到对应主题所在的地址</p><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/nexmoe/hexo-theme-nexmoe.git themes/nexmoe<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li><li><p>将其克隆后，修改_config.yml文件里的theme为对应名字，例如：nexmoe（也就是一成功后多余的文件夹名称）</p><pre class="line-numbers language-bash"><code class="language-bash">hexo cleanhexo ghexo shexo d<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li></ol><h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ol><li><p>在最后 hexo s 打开博客时，本地端口不能用ctrl+c复制网址，否则会停止该操作，导致端口打不开，直接在网页输入即可。</p></li><li><p>写博客直接用这个typora点开编辑即可，视频采用的是代码的形式写入到文件，实际有typora直接使用即可。</p></li><li><p>若配置好后出现error deployer not found:git的情况，可以尝试在后面添加一行</p><pre class="line-numbers language-bash"><code class="language-bash">message: blog<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li><li><p>注意冒号后面要留有空白。</p></li><li><p>同时github上步骤很详细，按照步骤完全没有问题，注意区分站点下的config文件与theme下的config文件修改是不一样的，链接如下：<a href="https://github.com/nexmoe/hexo-theme-nexmoe">https://github.com/nexmoe/hexo-theme-nexmoe</a></p></li><li><p>图片配置，如果是在用typora写的时候是插入的本地图片，那么你会发现网站上不会显示，此时需要将图片放在站点source下的images文件夹下面，如果没有的话，就自己新建一个。如下</p><pre class="line-numbers language-none"><code class="language-none">![](/images/L1.png)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li></ol>]]></content>
-      
-      
-      
-        <tags>
-            
-            <tag> 个人博客 </tag>
-            
-            <tag> Hexo </tag>
-            
-            <tag> Gitee </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-  
-  
+<search>
+  <entry>
+    <title>我的第一篇博客</title>
+    <url>/2022/03/29/wo-de-di-yi-pian-bo-ke/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="https://cdn.jsdelivr.net/npm/meting/dist/Meting.min.js"></script><h1 id="Windows搭建自己的博客"><a href="#Windows搭建自己的博客" class="headerlink" title="Windows搭建自己的博客"></a>Windows搭建自己的博客</h1><h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><h3 id="软件配置"><a href="#软件配置" class="headerlink" title="软件配置"></a>软件配置</h3><ol>
+<li><p>安装<a href="https://nodejs.org/en/">node.js</a> ;选择LTS即可</p>
+</li>
+<li><p>安装后利用</p>
+<pre class="line-numbers language-bash"><code class="language-bash">node -v
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>查看节点版本;</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">npm</span> -v
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>查看包管理器的版本</p>
+</li>
+<li><p>安装<a href="https://git-scm.com/downloads">Git</a></p>
+</li>
+</ol>
+<h3 id="hexo框架安装"><a href="#hexo框架安装" class="headerlink" title="hexo框架安装"></a>hexo框架安装</h3><ol>
+<li><p>利用镜像源下载安装cnpm</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> -g cnpm --registry<span class="token operator">=</span>https://registry.npm.taobao.org
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>查看cnpm版本</p>
+<pre class="line-numbers language-bash"><code class="language-bash">cnpm -v
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>安装hexo</p>
+<pre class="line-numbers language-bash"><code class="language-bash">cnpm <span class="token function">install</span> -g hexo-cli
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>验证是否成功</p>
+<pre class="line-numbers language-bash"><code class="language-bash">hexo -v
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+</ol>
+<h3 id="搭建个人博客"><a href="#搭建个人博客" class="headerlink" title="搭建个人博客"></a>搭建个人博客</h3><ol>
+<li><p>建立并进入文件夹blog</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">mkdir</span> blog
+<span class="token function">cd</span> blog/
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
+<li><p>已经安装好git后，打开blog所在文件夹，右键git bash即可</p>
+</li>
+<li><p>生成博客-启动博客</p>
+<pre class="line-numbers language-bash"><code class="language-bash">hexo init
+hexo s
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
+<li><p>进入端口地址，可以看到你的博客，切忌用ctrl+c</p>
+</li>
+<li><p>新建一个博客</p>
+<pre class="line-numbers language-bash"><code class="language-bash">hexo n <span class="token string">"我的第一个博客"</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>进入blog文件夹下source下_posts里面找到你新建的博客，用typero打开写入你想要展示的内容。</p>
+</li>
+<li><p>编辑完后回到git bash输入</p>
+<pre class="line-numbers language-bash"><code class="language-bash">hexo clean
+hexo g
+hexo s
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>上面代码分别输入，分别代表清理博客-生成博客-预览博客</p>
+</li>
+</ol>
+<h3 id="部署到gitee上"><a href="#部署到gitee上" class="headerlink" title="部署到gitee上"></a>部署到gitee上</h3><ol>
+<li><p>gitee注册账号 新建仓库 注意仓库名与昵称保持一致，并记住这个账户名和密码 后面要用</p>
+</li>
+<li><p>安装git插件</p>
+<pre class="line-numbers language-bash"><code class="language-bash">cnpm <span class="token function">install</span> hexo-deployer-git --save
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>修改_config.yml文件，windows直接用vs code打开即可，最好不用记事本</p>
+</li>
+<li><p>进行远端部署</p>
+<pre class="line-numbers language-bash"><code class="language-bash">hexo clean
+hexo g
+hexo s
+hexo d
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+<li><p>刷新仓库，可以看到blog下的文件被更新到了仓库下了，也可以通过此步骤来检测前面的步骤是否正确。’</p>
+</li>
+<li><p>最后进入gitee仓库，点击上方服务选择Gitee Pages，下方强制https最好勾上。</p>
+</li>
+<li><p>配置好后点击gitee pages弹出网址即可预览到你的博客。</p>
+</li>
+</ol>
+<h3 id="主题设置"><a href="#主题设置" class="headerlink" title="主题设置"></a>主题设置</h3><ol>
+<li><p>找到对应主题所在的地址</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/nexmoe/hexo-theme-nexmoe.git themes/nexmoe
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>将其克隆后，修改_config.yml文件里的theme为对应名字，例如：nexmoe（也就是一成功后多余的文件夹名称）</p>
+<pre class="line-numbers language-bash"><code class="language-bash">hexo clean
+hexo g
+hexo s
+hexo d
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
+</ol>
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ol>
+<li><p>在最后 hexo s 打开博客时，本地端口不能用ctrl+c复制网址，否则会停止该操作，导致端口打不开，直接在网页输入即可。</p>
+</li>
+<li><p>写博客直接用这个typora点开编辑即可，视频采用的是代码的形式写入到文件，实际有typora直接使用即可。</p>
+</li>
+<li><p>若配置好后出现error deployer not found:git的情况，可以尝试在后面添加一行</p>
+<pre class="line-numbers language-bash"><code class="language-bash">message: blog
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+<li><p>注意冒号后面要留有空白。</p>
+</li>
+<li><p>同时github上步骤很详细，按照步骤完全没有问题，注意区分站点下的config文件与theme下的config文件修改是不一样的，链接如下：<a href="https://github.com/nexmoe/hexo-theme-nexmoe">https://github.com/nexmoe/hexo-theme-nexmoe</a></p>
+</li>
+<li><p>图片配置，如果是在用typora写的时候是插入的本地图片，那么你会发现网站上不会显示，此时需要将图片放在站点source下的images文件夹下面，如果没有的话，就自己新建一个。如下</p>
+<pre class="line-numbers language-none"><code class="language-none">![](/images/L1.png)
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>个人博客</tag>
+        <tag>Hexo</tag>
+        <tag>Gitee</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>记一次U盘修复</title>
+    <url>/2022/03/31/ji-yi-ci-u-pan-xiu-fu/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="https://cdn.jsdelivr.net/npm/meting/dist/Meting.min.js"></script><h1 id="记一次U盘修复"><a href="#记一次U盘修复" class="headerlink" title="记一次U盘修复"></a>记一次U盘修复</h1><h2 id="事情起因"><a href="#事情起因" class="headerlink" title="事情起因"></a>事情起因</h2>]]></content>
+      <tags>
+        <tag>U盘</tag>
+        <tag>量产</tag>
+      </tags>
+  </entry>
 </search>
