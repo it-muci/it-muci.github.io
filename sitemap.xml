@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://it-muci.gitee.io/friend/index.html</loc>
+    <loc>https://it-muci.gitee.io/2022/03/29/wo-de-di-yi-pian-bo-ke/</loc>
     
     <lastmod>2022-03-31</lastmod>
     
@@ -11,9 +11,9 @@
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/2022/03/29/wo-de-di-yi-pian-bo-ke/</loc>
+    <loc>https://it-muci.gitee.io/friend/index.html</loc>
     
-    <lastmod>2022-03-30</lastmod>
+    <lastmod>2022-03-31</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -65,7 +65,7 @@
 
   
   <url>
-    <loc>https://it-muci.gitee.io/tags/%E5%8D%9A%E5%AE%A2/</loc>
+    <loc>https://it-muci.gitee.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2-Hexo-Gitee/</loc>
     <lastmod>2022-03-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
