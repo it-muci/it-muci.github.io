@@ -2,7 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://it-muci.gitee.io/friend/index.html</loc>
+    <loc>https://it-muci.github.io/2022/03/31/ji-yi-ci-u-pan-xiu-fu/</loc>
+    
+    <lastmod>2022-04-01</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://it-muci.github.io/friend/index.html</loc>
+    
+    <lastmod>2022-04-01</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://it-muci.github.io/2022/03/29/wo-de-di-yi-pian-bo-ke/</loc>
     
     <lastmod>2022-03-31</lastmod>
     
@@ -11,25 +29,7 @@
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/2022/03/31/ji-yi-ci-u-pan-xiu-fu/</loc>
-    
-    <lastmod>2022-03-31</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://it-muci.gitee.io/2022/03/29/wo-de-di-yi-pian-bo-ke/</loc>
-    
-    <lastmod>2022-03-31</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://it-muci.gitee.io/virus/index.html</loc>
+    <loc>https://it-muci.github.io/virus/index.html</loc>
     
     <lastmod>2022-03-29</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/link/index.html</loc>
+    <loc>https://it-muci.github.io/link/index.html</loc>
     
     <lastmod>2022-03-28</lastmod>
     
@@ -47,7 +47,7 @@
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/about/index.html</loc>
+    <loc>https://it-muci.github.io/about/index.html</loc>
     
     <lastmod>2022-03-28</lastmod>
     
@@ -56,7 +56,7 @@
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/categories/index.html</loc>
+    <loc>https://it-muci.github.io/categories/index.html</loc>
     
     <lastmod>2022-03-23</lastmod>
     
@@ -66,44 +66,44 @@
   
 
   <url>
-    <loc>https://it-muci.gitee.io/</loc>
-    <lastmod>2022-03-31</lastmod>
+    <loc>https://it-muci.github.io/</loc>
+    <lastmod>2022-04-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
-    <loc>https://it-muci.gitee.io/tags/U%E7%9B%98/</loc>
-    <lastmod>2022-03-31</lastmod>
+    <loc>https://it-muci.github.io/tags/U%E7%9B%98/</loc>
+    <lastmod>2022-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/tags/%E9%87%8F%E4%BA%A7/</loc>
-    <lastmod>2022-03-31</lastmod>
+    <loc>https://it-muci.github.io/tags/%E9%87%8F%E4%BA%A7/</loc>
+    <lastmod>2022-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</loc>
-    <lastmod>2022-03-31</lastmod>
+    <loc>https://it-muci.github.io/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</loc>
+    <lastmod>2022-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/tags/Hexo/</loc>
-    <lastmod>2022-03-31</lastmod>
+    <loc>https://it-muci.github.io/tags/Hexo/</loc>
+    <lastmod>2022-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://it-muci.gitee.io/tags/Gitee/</loc>
-    <lastmod>2022-03-31</lastmod>
+    <loc>https://it-muci.github.io/tags/Gitee/</loc>
+    <lastmod>2022-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
