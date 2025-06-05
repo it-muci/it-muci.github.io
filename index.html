@@ -2,236 +2,342 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>高级感个人主页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二次元小窝 - 我的个人主页</title>
     <style>
-        :root {
-            --main-color: #2c3e50;
-            --secondary-color: #7f8c8d;
-            --hover-color: #2980b9;
-            --glass-opacity: 0.85;
-        }
-
+        /* 基础样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'PingFang SC', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
-
+        
         body {
-            min-height: 100vh;
-            background: linear-gradient(150deg, #e8f0fe 30%, #f5f7fa);
+            background-color: #fef6f6;
+            color: #333;
+            line-height: 1.6;
+            background-image: url('https://placeholder.pics/svg/300x200/DEDEDE/555555/二次元背景');
             background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* 二次元风格容器 */
+        .anime-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 150, 150, 0.3);
+            border: 2px solid #ffb6b6;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .anime-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff9e9e, #ff6b6b, #ff9e9e);
+        }
+        
+        /* 头部样式 */
+        header {
+            text-align: center;
+            padding: 30px 0;
+            position: relative;
+        }
+        
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid #ffb6b6;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(255, 105, 105, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .avatar:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5rem;
+            margin-top: 15px;
+            text-shadow: 2px 2px 4px rgba(255, 182, 182, 0.5);
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* 导航栏 */
+        nav {
             display: flex;
             justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .nav-item {
+            margin: 0 15px;
+            padding: 8px 20px;
+            background-color: #ffd6d6;
+            border-radius: 30px;
+            color: #ff6b6b;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: 2px solid #ffb6b6;
+        }
+        
+        .nav-item:hover {
+            background-color: #ff6b6b;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(255, 107, 107, 0.3);
+        }
+        
+        /* 内容区域 */
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            border-left: 5px solid #ffb6b6;
+        }
+        
+        .section-title {
+            color: #ff6b6b;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #ffb6b6;
+        }
+        
+        /* 关于我 */
+        .about-content {
+            display: flex;
             align-items: center;
-            padding: 20px 10px;
+            flex-wrap: wrap;
         }
-
-        .container {
-            background: rgba(255, 255, 255, var(--glass-opacity));
-            border-radius: 25px;
-            box-shadow: 0 12px 32px rgba(49, 62, 81, 0.12);
-            backdrop-filter: blur(12px);
-            width: 100%;
-            max-width: 600px;
-            padding: 40px 30px;
-            transition: transform 0.3s ease;
+        
+        .about-text {
+            flex: 1;
+            min-width: 300px;
         }
-
-        .container:hover {
+        
+        .about-image {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .about-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 技能 */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .skill-item {
+            background-color: #ffd6d6;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: #ff6b6b;
+            font-weight: bold;
+            border: 1px solid #ffb6b6;
+        }
+        
+        /* 作品展示 */
+        .works-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .work-item {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            border: 1px solid #ffd6d6;
+        }
+        
+        .work-item:hover {
             transform: translateY(-5px);
         }
-
-        .avatar-wrap {
-            position: relative;
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 30px;
-        }
-
-        .avatar {
+        
+        .work-image {
             width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+            height: 180px;
             object-fit: cover;
         }
-
-        .avatar-shadow {
-            position: absolute;
-            width: 120%;
-            height: 120%;
-            border-radius: 50%;
-            background: rgba(44, 62, 80, 0.08);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1;
+        
+        .work-info {
+            padding: 15px;
         }
-
-        .name {
-            font-size: 2.3rem;
-            color: var(--main-color);
-            font-weight: 600;
-            letter-spacing: 1.2px;
-            margin-bottom: 8px;
+        
+        .work-title {
+            color: #ff6b6b;
+            margin-bottom: 10px;
         }
-
-        .title {
-            font-size: 1.1rem;
-            color: var(--secondary-color);
-            margin-bottom: 25px;
-            opacity: 0.9;
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-size: 0.9rem;
         }
-
-        .contact {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .contact-item {
-            font-size: 1.1rem;
-            color: var(--main-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .contact-item:hover {
-            color: var(--hover-color);
-            transform: translateX(5px);
-        }
-
-        .divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, rgba(0,0,0,0.1), transparent);
-            margin: 30px 0;
-        }
-
-        .bio {
-            font-size: 1rem;
-            color: #555;
-            line-height: 1.7;
-            margin-bottom: 25px;
-        }
-
+        
         .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 22px;
+            margin-top: 15px;
         }
-
-        .social-icon {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.4rem;
-            color: var(--main-color);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+        
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            transition: transform 0.3s;
         }
-
-        .social-icon:hover {
-            box-shadow: 0 6px 20px rgba(41, 128, 185, 0.2);
-            transform: scale(1.08);
+        
+        .social-link:hover {
+            transform: scale(1.2);
         }
-
-        /* 移动端优化 */
-        @media (max-width: 480px) {
-            body {
-                padding: 15px 8px;
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .about-content {
+                flex-direction: column;
             }
-
-            .container {
-                padding: 30px 20px;
-                border-radius: 20px;
+            
+            .about-text, .about-image {
+                min-width: 100%;
             }
-
-            .avatar-wrap {
-                width: 140px;
-                height: 140px;
+            
+            .about-image {
+                margin-top: 20px;
             }
-
-            .name {
+            
+            h1 {
                 font-size: 2rem;
-            }
-
-            .title {
-                font-size: 1rem;
-            }
-
-            .social-icon {
-                width: 45px;
-                height: 45px;
-            }
-        }
-
-        /* 平板设备适配 */
-        @media (min-width: 481px) and (max-width: 768px) {
-            .container {
-                max-width: 500px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="avatar-wrap">
-            <img src="https://example.com/avatar.jpg" alt="个人头像" class="avatar">
-            <div class="avatar-shadow"></div>
-        </div>
-        <h1 class="name">李四</h1>
-        <p class="title">前端开发工程师 | 技术博主</p>
+    <div class="anime-container">
+        <header>
+            <img src="https://placeholder.pics/svg/150x150/FFD6D6/555555/头像" alt="我的头像" class="avatar">
+            <h1>二次元小窝</h1>
+            <p class="subtitle">欢迎来到我的二次元世界~</p>
+        </header>
         
-        <div class="contact">
-            <div class="contact-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
-                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.707 2.825L15 11.105V5.383Zm0-1.114-4.707 2.825L15 4.269V4Zm0 5.836-4.707 2.825L15 10.941V9.286Zm-12 5.836L3 10.941V9.286L.3 6.475 4.307 9.286Z"/>
-                </svg>
-                lisi@example.com
+        <nav>
+            <a href="#about" class="nav-item">关于我</a>
+            <a href="#skills" class="nav-item">技能</a>
+            <a href="#works" class="nav-item">作品</a>
+            <a href="#contact" class="nav-item">联系</a>
+            <a href="#" class="nav-item">博客</a>
+        </nav>
+        
+        <section id="about" class="section">
+            <h2 class="section-title">关于我</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>你好呀！我是小樱，一个热爱二次元文化的设计师和前端开发者。</p>
+                    <p>从小就被动漫和游戏的世界吸引，现在致力于将二次元的美学融入网页设计中。</p>
+                    <p>喜欢画画、看番剧、玩游戏，偶尔也会cosplay自己喜欢的角色。</p>
+                    <p>这个主页是我用代码搭建的小窝，希望能在这里分享我的作品和日常~</p>
+                </div>
+                <div class="about-image">
+                    <img src="https://placeholder.pics/svg/300x200/FFD6D6/555555/二次元插图" alt="二次元插图">
+                </div>
             </div>
-            <div class="contact-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-telephone" viewBox="0 0 16 16">
-                    <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-6.079-6.079c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
-                </svg>
-                +86-135-xxxx-xxxx
+        </section>
+        
+        <section id="skills" class="section">
+            <h2 class="section-title">我的技能</h2>
+            <div class="skills-container">
+                <div class="skill-item">UI设计</div>
+                <div class="skill-item">前端开发</div>
+                <div class="skill-item">插画绘制</div>
+                <div class="skill-item">Photoshop</div>
+                <div class="skill-item">Illustrator</div>
+                <div class="skill-item">HTML/CSS</div>
+                <div class="skill-item">JavaScript</div>
+                <div class="skill-item">Vue.js</div>
+                <div class="skill-item">动漫鉴赏</div>
+                <div class="skill-item">游戏攻略</div>
             </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <p class="bio">
-            专注于移动端开发与用户体验优化，擅长通过轻量化代码构建流畅交互。热爱技术传播，致力于用创新思维解决开发难题，推动技术与设计的融合。
-        </div>
-
-        <div class="social-links">
-            <a href="#" class="social-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
-            </a>
-            <a href="#" class="social-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-linkedin" viewBox="0 0 16 16">
-                    <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 15 0 14.487 0 13.854V1.146zm4.943 12.248h.055V8.459H4.889v5.939zm-1.389-8.212c.156-2.186 1.893-2.186 2.047 0l.016 2.186H3.554V3.027zm4.854 12.248h.055v-5.938h-.055v5.938zm2.39-12.248v5.938h.055V3.027h-.055v5.938h.089V8.459h-.089v5.938h.055V15h-.055v-5.938h-.089v-5.938h.089V3.027z"/>
-                </svg>
-            </a>
-            <a href="#" class="social-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-codepen" viewBox="0 0 16 16">
-                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM3.5 5.5v5h1v-5h-1zm3 0v5h1v-5h-1zm3 0v5h1v-5h-1zm3 0v5h1v-5h-1z"/>
-                </svg>
-            </a>
-        </div>
+        </section>
+        
+        <section id="works" class="section">
+            <h2 class="section-title">我的作品</h2>
+            <div class="works-container">
+                <div class="work-item">
+                    <img src="https://placeholder.pics/svg/300x180/FFD6D6/555555/作品1" alt="作品1" class="work-image">
+                    <div class="work-info">
+                        <h3 class="work-title">动漫风个人博客</h3>
+                        <p>一个完全自定义的二次元风格个人博客，记录我的动漫观后感。</p>
+                    </div>
+                </div>
+                <div class="work-item">
+                    <img src="https://placeholder.pics/svg/300x180/FFD6D6/555555/作品2" alt="作品2" class="work-image">
+                    <div class="work-info">
+                        <h3 class="work-title">游戏角色插画集</h3>
+                        <p>我绘制的各种游戏角色同人插画合集。</p>
+                    </div>
+                </div>
+                <div class="work-item">
+                    <img src="https://placeholder.pics/svg/300x180/FFD6D6/555555/作品3" alt="作品3" class="work-image">
+                    <div class="work-info">
+                        <h3 class="work-title">动漫资讯小程序</h3>
+                        <p>一个聚合最新动漫资讯和番剧更新的微信小程序。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="contact" class="section">
+            <h2 class="section-title">联系我</h2>
+            <p>如果你对我的作品感兴趣，或者想交流二次元文化，欢迎通过以下方式联系我：</p>
+            <p>Email: sakura@example.com</p>
+            <p>QQ: 123456789</p>
+            <div class="social-links">
+                <a href="#" class="social-link">B站</a>
+                <a href="#" class="social-link">微博</a>
+                <a href="#" class="social-link">GitHub</a>
+                <a href="#" class="social-link">Pixiv</a>
+            </div>
+        </section>
+        
+        <footer>
+            <p>© 2023 二次元小窝 - 所有权利保留</p>
+            <p>Design with ❤ by 小樱</p>
+        </footer>
     </div>
 </body>
 </html>
