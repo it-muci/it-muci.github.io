@@ -23,6 +23,27 @@
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
         
+        /* 谷歌风格滚动条 */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(66, 133, 244, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--main-color), var(--secondary-color));
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(var(--accent-color), var(--yellow-accent));
+        }
+        
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -31,6 +52,8 @@
             background-attachment: fixed;
             background-size: cover;
             padding: 20px;
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: var(--main-color) rgba(66, 133, 244, 0.1); /* Firefox */
         }
         
         /* 整体容器 */
@@ -327,6 +350,11 @@
             .card {
                 padding: 20px;
             }
+            
+            /* 移动端滚动条变细 */
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -335,7 +363,7 @@
     <div class="container">
         <!-- 头部卡片 -->
         <div class="card header-card">
-            <img src="http://q.qlogo.cn/headimg_dl?dst_uin=2731149797&spec=640&img_type=jpg" alt="我的头像" class="avatar">
+            <img src="https://placeholder.pics/svg/150x150/4285F4/FFFFFF/头像" alt="我的头像" class="avatar">
             <h1>蓝调二次元</h1>
             <p class="subtitle">科技与动漫的完美结合 ✨</p>
             <div class="tags">
@@ -351,7 +379,7 @@
             <h2 class="section-title">关于我</h2>
             <div class="about-content">
                 <div class="about-text">
-                    <p>你好！我是慕辞，一个热爱技术的二次元爱好者。</p>
+                    <p>你好！我是蓝泽，一个热爱技术的二次元爱好者。</p>
                     <p>💻 白天是前端开发工程师，专注于创造优秀的用户体验。</p>
                     <p>🎮 晚上是游戏玩家和动漫迷，特别喜欢科幻和机甲类作品。</p>
                     <p>📚 热衷于探索技术与艺术的结合点，相信代码也能充满美感。</p>
@@ -422,7 +450,7 @@
                     </div>
                     <div>
                         <h3>Email</h3>
-                        <p>admin@zhulianbo.cn</p>
+                        <p>lanze@example.com</p>
                     </div>
                 </div>
                 <div class="contact-item">
@@ -431,7 +459,7 @@
                     </div>
                     <div>
                         <h3>GitHub</h3>
-                        <p>github.com/it-muci</p>
+                        <p>github.com/lanze</p>
                     </div>
                 </div>
                 <div class="contact-item">
@@ -456,8 +484,8 @@
         
         <!-- 页脚 -->
         <footer>
-            <p>© 2025 蓝调二次元 - 所有权利保留</p>
-            <p>Made with <span style="color: var(--accent-color);">❤</span> and <span style="color: var(--main-color);">code</span> by 慕辞</p>
+            <p>© 2023 蓝调二次元 - 所有权利保留</p>
+            <p>Made with <span style="color: var(--accent-color);">❤</span> and <span style="color: var(--main-color);">code</span> by 蓝泽</p>
         </footer>
     </div>
 </body>
