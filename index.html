@@ -14,6 +14,8 @@
             --bg-color: #f8fafe;
             --card-bg: rgba(255, 255, 255, 0.9);
             --text-color: #3a3a3a;
+            --scrollbar-thumb: #4285F4,#34A853,#EA4335,#FBBC05; /* 滚动条滑块使用纯谷歌蓝 */
+            --scrollbar-track: #E8F0FE; /* 滚动条轨道使用浅蓝色 */
         }
         
         * {
@@ -23,25 +25,25 @@
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
         
-        /* 谷歌风格滚动条 */
+        /* 谷歌蓝风格滚动条 */
         ::-webkit-scrollbar {
             width: 12px;
             height: 12px;
         }
         
         ::-webkit-scrollbar-track {
-            background: rgba(66, 133, 244, 0.1);
+            background: var(--scrollbar-track);
             border-radius: 10px;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(var(--main-color), var(--secondary-color));
+            background: var(--scrollbar-thumb);
             border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
+            border: 2px solid var(--scrollbar-track);
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(var(--accent-color), var(--yellow-accent));
+            background: #3367D6; /* 谷歌蓝的深色变体 */
         }
         
         body {
@@ -53,7 +55,7 @@
             background-size: cover;
             padding: 20px;
             scrollbar-width: thin; /* Firefox */
-            scrollbar-color: var(--main-color) rgba(66, 133, 244, 0.1); /* Firefox */
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); /* Firefox */
         }
         
         /* 整体容器 */
