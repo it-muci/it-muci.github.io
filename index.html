@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>萌系卡片屋 - 我的二次元主页</title>
+    <title>蓝调二次元 - 我的个人主页</title>
     <style>
-        /* 基础样式 */
+        /* 基础样式 - 谷歌蓝主题 */
         :root {
-            --main-color: #ff7eb9;
-            --secondary-color: #7afcff;
-            --accent-color: #feff9c;
-            --bg-color: #fff5f7;
-            --card-bg: rgba(255, 255, 255, 0.85);
+            --main-color: #4285F4;  /* 谷歌蓝 */
+            --secondary-color: #34A853;  /* 谷歌绿 */
+            --accent-color: #EA4335;  /* 谷歌红 */
+            --yellow-accent: #FBBC05;  /* 谷歌黄 */
+            --bg-color: #f8fafe;
+            --card-bg: rgba(255, 255, 255, 0.9);
             --text-color: #3a3a3a;
         }
         
@@ -19,14 +20,14 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Comic Sans MS', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
         
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
-            background-image: url('https://placeholder.pics/svg/800x600/FFF5F7/FF7EB9/二次元背景图案');
+            background-image: url('https://placeholder.pics/svg/800x600/F8FAFE/4285F4/二次元背景图案');
             background-attachment: fixed;
             background-size: cover;
             padding: 20px;
@@ -41,8 +42,8 @@
         /* 卡片基础样式 */
         .card {
             background: var(--card-bg);
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(255, 126, 185, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.15);
             padding: 25px;
             margin-bottom: 30px;
             border: 2px solid var(--main-color);
@@ -53,7 +54,7 @@
         
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(255, 126, 185, 0.3);
+            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.25);
         }
         
         .card::after {
@@ -63,14 +64,14 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, var(--main-color), var(--secondary-color), var(--accent-color));
+            background: linear-gradient(90deg, var(--main-color), var(--secondary-color), var(--accent-color), var(--yellow-accent));
         }
         
         /* 头部卡片 */
         .header-card {
             text-align: center;
             padding: 40px 20px;
-            background: linear-gradient(135deg, rgba(255,126,185,0.1), rgba(122,252,255,0.1));
+            background: linear-gradient(135deg, rgba(66,133,244,0.05), rgba(52,168,83,0.05));
         }
         
         .avatar {
@@ -79,7 +80,7 @@
             border-radius: 50%;
             border: 5px solid var(--main-color);
             object-fit: cover;
-            box-shadow: 0 8px 16px rgba(255, 126, 185, 0.3);
+            box-shadow: 0 8px 16px rgba(66, 133, 244, 0.2);
             transition: transform 0.3s;
             margin-bottom: 20px;
         }
@@ -90,14 +91,14 @@
         
         h1 {
             color: var(--main-color);
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(255, 126, 185, 0.2);
+            text-shadow: 2px 2px 4px rgba(66, 133, 244, 0.1);
         }
         
         .subtitle {
             color: var(--text-color);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin-bottom: 20px;
             font-weight: 300;
         }
@@ -113,12 +114,18 @@
         
         .tag {
             padding: 6px 15px;
-            background-color: var(--accent-color);
+            background-color: white;
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: bold;
-            color: #5a5a5a;
-            border: 1px dashed var(--main-color);
+            color: var(--text-color);
+            border: 1px solid var(--main-color);
+            transition: all 0.3s;
+        }
+        
+        .tag:hover {
+            background-color: var(--main-color);
+            color: white;
         }
         
         /* 卡片网格布局 */
@@ -132,10 +139,10 @@
         /* 章节标题 */
         .section-title {
             color: var(--main-color);
-            font-size: 2rem;
+            font-size: 1.8rem;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 3px dotted var(--secondary-color);
+            border-bottom: 3px solid rgba(66, 133, 244, 0.3);
             display: inline-block;
         }
         
@@ -148,6 +155,10 @@
         
         .about-text {
             flex: 1;
+        }
+        
+        .about-text p {
+            margin-bottom: 15px;
         }
         
         .about-image {
@@ -172,25 +183,26 @@
         .skill-item {
             background-color: white;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            border: 2px solid var(--secondary-color);
-            transition: transform 0.2s;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(66, 133, 244, 0.3);
+            transition: all 0.3s;
         }
         
         .skill-item:hover {
-            transform: scale(1.05);
-            background-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(66, 133, 244, 0.2);
+            border-color: var(--main-color);
         }
         
         /* 作品卡片 */
         .work-card {
             position: relative;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            height: 250px;
+            height: 220px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
@@ -206,7 +218,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(255,126,185,0.8), transparent);
+            background: linear-gradient(to top, rgba(66,133,244,0.8), transparent);
             padding: 20px;
             color: white;
             transform: translateY(100px);
@@ -222,11 +234,11 @@
         }
         
         .work-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin-bottom: 5px;
         }
         
-        /* 联系卡片 */
+        /* 联系我卡片 */
         .contact-methods {
             display: flex;
             flex-wrap: wrap;
@@ -238,12 +250,19 @@
             min-width: 200px;
             background-color: white;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            border: 2px solid var(--accent-color);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(66, 133, 244, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .contact-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(66, 133, 244, 0.2);
+            border-color: var(--main-color);
         }
         
         .contact-icon {
@@ -269,20 +288,22 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background-color: white;
             border-radius: 50%;
             color: var(--main-color);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, background-color 0.3s;
+            transition: all 0.3s;
+            border: 1px solid rgba(66, 133, 244, 0.3);
         }
         
         .social-link:hover {
             transform: translateY(-5px) scale(1.1);
             background-color: var(--main-color);
             color: white;
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
         }
         
         /* 响应式设计 */
@@ -302,6 +323,10 @@
             h1 {
                 font-size: 2rem;
             }
+            
+            .card {
+                padding: 20px;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -310,14 +335,14 @@
     <div class="container">
         <!-- 头部卡片 -->
         <div class="card header-card">
-            <img src="https://placeholder.pics/svg/200x200/FF7EB9/FFFFFF/慕辞" alt="我的头像" class="avatar">
-            <h1>萌系卡片屋</h1>
-            <p class="subtitle">欢迎来到我的二次元卡片世界 ✨</p>
+            <img src="https://placeholder.pics/svg/150x150/4285F4/FFFFFF/头像" alt="我的头像" class="avatar">
+            <h1>蓝调二次元</h1>
+            <p class="subtitle">科技与动漫的完美结合 ✨</p>
             <div class="tags">
+                <span class="tag">前端工程师</span>
                 <span class="tag">动漫爱好者</span>
-                <span class="tag">前端开发</span>
-                <span class="tag">插画师</span>
-                <span class="tag">游戏玩家</span>
+                <span class="tag">UI设计师</span>
+                <span class="tag">技术宅</span>
             </div>
         </div>
         
@@ -326,14 +351,14 @@
             <h2 class="section-title">关于我</h2>
             <div class="about-content">
                 <div class="about-text">
-                    <p>嗨~我是小莓，一个热爱二次元文化的设计师和开发者！</p>
-                    <p>🎨 擅长将动漫元素融入UI设计中，创造可爱又实用的界面。</p>
-                    <p>💻 白天是前端工程师，晚上是同人画手，周末是cosplayer。</p>
-                    <p>🍓 最喜欢的动漫是《魔法少女小圆》，最喜欢的游戏是《原神》。</p>
-                    <p>🌟 在这里分享我的作品、日常和一些二次元相关的内容~</p>
+                    <p>你好！我是蓝泽，一个热爱技术的二次元爱好者。</p>
+                    <p>💻 白天是前端开发工程师，专注于创造优秀的用户体验。</p>
+                    <p>🎮 晚上是游戏玩家和动漫迷，特别喜欢科幻和机甲类作品。</p>
+                    <p>📚 热衷于探索技术与艺术的结合点，相信代码也能充满美感。</p>
+                    <p>🌟 在这里分享我的技术心得和二次元兴趣，欢迎交流！</p>
                 </div>
                 <div class="about-image">
-                    <img src="https://placeholder.pics/svg/300x200/FF7EB9/FFFFFF/二次元插图" alt="二次元风格插图">
+                    <img src="https://placeholder.pics/svg/300x200/4285F4/FFFFFF/二次元插图" alt="二次元风格插图">
                 </div>
             </div>
         </div>
@@ -342,18 +367,18 @@
         <div class="card">
             <h2 class="section-title">我的技能</h2>
             <div class="skills-container">
-                <div class="skill-item">UI设计</div>
-                <div class="skill-item">插画</div>
                 <div class="skill-item">HTML5</div>
                 <div class="skill-item">CSS3</div>
                 <div class="skill-item">JavaScript</div>
                 <div class="skill-item">Vue.js</div>
+                <div class="skill-item">React</div>
+                <div class="skill-item">UI设计</div>
+                <div class="skill-item">动效设计</div>
                 <div class="skill-item">Photoshop</div>
-                <div class="skill-item">Illustrator</div>
                 <div class="skill-item">动漫鉴赏</div>
-                <div class="skill-item">游戏攻略</div>
-                <div class="skill-item">Cosplay</div>
-                <div class="skill-item">视频剪辑</div>
+                <div class="skill-item">游戏开发</div>
+                <div class="skill-item">技术写作</div>
+                <div class="skill-item">视频制作</div>
             </div>
         </div>
         
@@ -362,21 +387,21 @@
             <h2 class="section-title">我的作品</h2>
             <div class="card-grid">
                 <div class="work-card">
-                    <img src="https://placeholder.pics/svg/400x250/FF7EB9/FFFFFF/作品1" alt="动漫博客设计" class="work-image">
+                    <img src="https://placeholder.pics/svg/400x250/4285F4/FFFFFF/作品1" alt="动漫风格UI组件库" class="work-image">
                     <div class="work-overlay">
-                        <h3 class="work-title">动漫风个人博客</h3>
-                        <p>完全自定义的二次元风格博客系统</p>
+                        <h3 class="work-title">动漫风格UI组件库</h3>
+                        <p>为开发者准备的二次元风格前端组件</p>
                     </div>
                 </div>
                 <div class="work-card">
-                    <img src="https://placeholder.pics/svg/400x250/7AFCFF/FFFFFF/作品2" alt="角色插画集" class="work-image">
+                    <img src="https://placeholder.pics/svg/400x250/34A853/FFFFFF/作品2" alt="技术博客" class="work-image">
                     <div class="work-overlay">
-                        <h3 class="work-title">游戏角色插画集</h3>
-                        <p>原创游戏角色同人插画合集</p>
+                        <h3 class="work-title">技术博客</h3>
+                        <p>分享前端技术和动漫相关的内容</p>
                     </div>
                 </div>
                 <div class="work-card">
-                    <img src="https://placeholder.pics/svg/400x250/FEFF9C/FFFFFF/作品3" alt="动漫资讯APP" class="work-image">
+                    <img src="https://placeholder.pics/svg/400x250/EA4335/FFFFFF/作品3" alt="动漫资讯APP" class="work-image">
                     <div class="work-overlay">
                         <h3 class="work-title">动漫资讯APP</h3>
                         <p>聚合最新动漫资讯的移动应用</p>
@@ -388,7 +413,7 @@
         <!-- 联系我卡片 -->
         <div class="card">
             <h2 class="section-title">联系我</h2>
-            <p>想和我交流二次元文化或者合作项目？欢迎通过以下方式联系：</p>
+            <p>想讨论技术或分享动漫心得？欢迎通过以下方式联系：</p>
             
             <div class="contact-methods">
                 <div class="contact-item">
@@ -397,25 +422,25 @@
                     </div>
                     <div>
                         <h3>Email</h3>
-                        <p>2731149797@qq.com</p>
+                        <p>lanze@example.com</p>
                     </div>
                 </div>
                 <div class="contact-item">
                     <div class="contact-icon">
-                        <i class="fab fa-qq"></i>
+                        <i class="fab fa-github"></i>
                     </div>
                     <div>
-                        <h3>QQ</h3>
-                        <p>2731149797</p>
+                        <h3>GitHub</h3>
+                        <p>github.com/lanze</p>
                     </div>
                 </div>
                 <div class="contact-item">
                     <div class="contact-icon">
-                        <i class="fas fa-phone-alt"></i>
+                        <i class="fab fa-twitter"></i>
                     </div>
                     <div>
-                        <h3>微信</h3>
-                        <p>猪猪侠</p>
+                        <h3>Twitter</h3>
+                        <p>@lanze_anime</p>
                     </div>
                 </div>
             </div>
@@ -423,16 +448,16 @@
             <div class="social-links">
                 <a href="#" class="social-link"><i class="fab fa-bilibili"></i></a>
                 <a href="#" class="social-link"><i class="fab fa-weibo"></i></a>
-                <a href="#" class="social-link"><i class="fab fa-github"></i></a>
-                <a href="#" class="social-link"><i class="fas fa-paint-brush"></i></a>
-                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-codepen"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
             </div>
         </div>
         
         <!-- 页脚 -->
         <footer>
-            <p>© 2023 萌系卡片屋 - 所有权利保留</p>
-            <p>Made with ❤ and 🍓 by 慕辞</p>
+            <p>© 2023 蓝调二次元 - 所有权利保留</p>
+            <p>Made with <span style="color: var(--accent-color);">❤</span> and <span style="color: var(--main-color);">code</span> by 蓝泽</p>
         </footer>
     </div>
 </body>
