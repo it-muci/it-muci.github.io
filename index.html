@@ -1,84 +1,157 @@
-# This script is hosted on <b>https://get.activated.win</b> for <b>https://massgrave.dev</b><hr><pre>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XXX个人主页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
 
-$troubleshoot = 'https://massgrave.dev/troubleshoot'
-if ($ExecutionContext.SessionState.LanguageMode.value__ -ne 0) {
-    $ExecutionContext.SessionState.LanguageMode
-    Write-Host "Windows PowerShell is not running in Full Language Mode."
-    Write-Host "Help - https://gravesoft.dev/fix_powershell" -ForegroundColor White -BackgroundColor Blue
-    return
-}
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-attachment: fixed;
+        }
 
-function Check3rdAV {
-    $avList = Get-CimInstance -Namespace root\SecurityCenter2 -Class AntiVirusProduct | Where-Object { $_.displayName -notlike '*windows*' } | Select-Object -ExpandProperty displayName
-    if ($avList) {
-        Write-Host '3rd party Antivirus might be blocking the script - ' -ForegroundColor White -BackgroundColor Blue -NoNewline
-        Write-Host " $($avList -join ', ')" -ForegroundColor DarkRed -BackgroundColor White
-    }
-}
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            text-align: center;
+        }
 
-function CheckFile { 
-    param ([string]$FilePath) 
-    if (-not (Test-Path $FilePath)) { 
-        Check3rdAV
-        Write-Host "Failed to create MAS file in temp folder, aborting!"
-        Write-Host "Help - $troubleshoot" -ForegroundColor White -BackgroundColor Blue
-        throw 
-    } 
-}
+        .avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            margin-bottom: 30px;
+            border: 5px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
 
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$URLs = @(
-    'https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/be7d101df5bf99d959b1f2d16557b88614ac7920/MAS/All-In-One-Version-KL/MAS_AIO.cmd',
-    '/MAS_AIO2.cmd',
-    '/MAS_AIO.cmd'
-)
+        .avatar:hover {
+            transform: scale(1.05);
+        }
 
-foreach ($URL in $URLs | Sort-Object { Get-Random }) {
-    try { $response = Invoke-WebRequest -Uri $URL -UseBasicParsing; break } catch {}
-}
+        .name {
+            font-size: 2.8em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
 
-if (-not $response) {
-    Check3rdAV
-    Write-Host "Failed to retrieve MAS from any of the available repositories, aborting!"
-    Write-Host "Help - $troubleshoot" -ForegroundColor White -BackgroundColor Blue
-    return
-}
+        .title {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
 
-# Verify script integrity
-$releaseHash = '6396F7EFE144AFCA1B48670D7F327F1275C90C3A7BD9AEC7641B9600BAA1DA9A'
-$stream = New-Object IO.MemoryStream
-$writer = New-Object IO.StreamWriter $stream
-$writer.Write($response)
-$writer.Flush()
-$stream.Position = 0
-$hash = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($stream)) -replace '-'
-if ($hash -ne $releaseHash) {
-    Write-Warning "Hash ($hash) mismatch, aborting!`nReport this issue at $troubleshoot"
-    $response = $null
-    return
-}
+        .contact {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
 
-# Check for AutoRun registry which may create issues with CMD
-$paths = "HKCU:\SOFTWARE\Microsoft\Command Processor", "HKLM:\SOFTWARE\Microsoft\Command Processor"
-foreach ($path in $paths) { 
-    if (Get-ItemProperty -Path $path -Name "Autorun" -ErrorAction SilentlyContinue) { 
-        Write-Warning "Autorun registry found, CMD may crash! `nManually copy-paste the below command to fix...`nRemove-ItemProperty -Path '$path' -Name 'Autorun'"
-    } 
-}
+        .contact-item {
+            color: #34495e;
+            font-size: 1.3em;
+            transition: color 0.3s;
+        }
 
-$rand = [Guid]::NewGuid().Guid
-$isAdmin = [bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544')
-$FilePath = if ($isAdmin) { "$env:SystemRoot\Temp\MAS_$rand.cmd" } else { "$env:USERPROFILE\AppData\Local\Temp\MAS_$rand.cmd" }
-Set-Content -Path $FilePath -Value "@::: $rand `r`n$response"
-CheckFile $FilePath
+        .contact-item:hover {
+            color: #2980b9;
+        }
 
-$env:ComSpec = "$env:SystemRoot\system32\cmd.exe"
-$chkcmd = & $env:ComSpec /c "echo CMD is working"
-if ($chkcmd -notcontains "CMD is working") {
-    Write-Warning "cmd.exe is not working.`nReport this issue at $troubleshoot"
-}
-saps -FilePath $env:ComSpec -ArgumentList "/c """"$FilePath"" $args""" -Wait
-CheckFile $FilePath
+        .divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 25px 0;
+        }
 
-$FilePaths = @("$env:SystemRoot\Temp\MAS*.cmd", "$env:USERPROFILE\AppData\Local\Temp\MAS*.cmd")
-foreach ($FilePath in $FilePaths) { Get-Item $FilePath | Remove-Item }
+        .bio {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4em;
+            color: #34495e;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .name {
+                font-size: 2.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://example.com/avatar.jpg" alt="头像" class="avatar">
+        <h1 class="name">张三</h1>
+        <p class="title">全栈工程师 | 技术博主</p>
+        
+        <div class="contact">
+            <span class="contact-item">📧 zhangsan@example.com</span>
+            <span class="contact-item">📞 +86-138-xxxx-xxxx</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="bio">
+            专注于前端开发与用户体验设计，擅长通过简洁的代码实现富有创意的交互效果。热爱技术分享，致力于用技术解决实际问题，让数字世界更美好。
+        </p>
+
+        <div class="social-links">
+            <a href="#" class="social-icon">💻</a>
+            <a href="#" class="social-icon">📚</a>
+            <a href="#" class="social-icon">🎨</a>
+        </div>
+    </div>
+</body>
+</html>
