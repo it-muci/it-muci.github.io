@@ -26,6 +26,8 @@
             --contact-bg: white;
             --social-bg: white;
             --theme-icon: '\f186';
+            --light-image-opacity: 1;
+            --dark-image-opacity: 0;
         }
 
         /* 夜间主题变量 */
@@ -49,6 +51,8 @@
             --contact-bg: #303134;
             --social-bg: #303134;
             --theme-icon: '\f185';
+            --light-image-opacity: 0;
+            --dark-image-opacity: 1;
         }
         
         * {
@@ -91,22 +95,29 @@
             padding: 20px;
             scrollbar-width: thin;
             scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-            transition: background-color 0.5s ease, color 0.5s ease, background-image 0.5s ease;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* 动态背景图 */
-        body:not(.dark-mode) {
-            --bg-image: linear-gradient(rgba(248, 250, 254, 0.9), rgba(248, 250, 254, 0.9)), 
-                        url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+        /* 动态背景图 - 使用双背景图实现平滑切换 */
+        body {
+            background-image: 
+                linear-gradient(rgba(248, 250, 254, 0.9), rgba(248, 250, 254, 0.9)), 
+                url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'),
+                linear-gradient(rgba(32, 33, 36, 0.85), rgba(32, 33, 36, 0.85)), 
+                url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
             background-blend-mode: overlay;
+        }
+
+        body:not(.dark-mode) {
+            --light-image-opacity: 1;
+            --dark-image-opacity: 0;
         }
 
         body.dark-mode {
-            --bg-image: linear-gradient(rgba(32, 33, 36, 0.85), rgba(32, 33, 36, 0.85)), 
-                        url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-blend-mode: overlay;
+            --light-image-opacity: 0;
+            --dark-image-opacity: 1;
         }
-        
+
         /* 容器 */
         .container {
             max-width: 1200px;
@@ -275,9 +286,12 @@
         .about-image {
             flex: 1;
             text-align: center;
+            position: relative;
         }
         
-        .about-image img {
+        /* 主题切换图片 */
+        .theme-image {
+            position: relative;
             max-width: 100%;
             border-radius: 10px;
             border: 3px solid var(--main-color);
@@ -287,14 +301,31 @@
             transform: translateX(10px) rotate(5deg);
         }
         
-        .about-image img.animated {
+        .theme-image.animated {
             opacity: 1;
             transform: translateX(0) rotate(0);
         }
         
-        .about-image img:hover {
+        .theme-image:hover {
             transform: scale(1.05) rotate(-2deg);
             box-shadow: 0 10px 25px var(--shadow-color);
+        }
+        
+        .light-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: var(--light-image-opacity);
+            transition: opacity 0.5s ease;
+        }
+        
+        .dark-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: var(--dark-image-opacity);
+            transition: opacity 0.5s ease;
+            filter: brightness(0.9) contrast(1.1);
         }
         
         /* 技能 */
@@ -345,11 +376,35 @@
             transform: translateY(0);
         }
         
+        /* 作品图片主题切换 */
+        .work-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
         .work-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .work-light-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: var(--light-image-opacity);
+            transition: opacity 0.5s ease;
+        }
+        
+        .work-dark-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: var(--dark-image-opacity);
+            transition: opacity 0.5s ease;
+            filter: brightness(0.9) contrast(1.1);
         }
         
         .work-overlay {
@@ -512,11 +567,6 @@
         }
 
         /* 图片夜间模式适配 */
-        .dark-mode img {
-            filter: brightness(0.9) contrast(1.1);
-            opacity: 0.9;
-        }
-
         .dark-mode .avatar {
             border-color: var(--main-color);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
@@ -707,7 +757,12 @@
                     <p>🌟 在这里分享我的技术心得和二次元兴趣，欢迎交流！</p>
                 </div>
                 <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="二次元风格插图">
+                    <div class="theme-image light-image animated">
+                        <img src="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="日间模式插图">
+                    </div>
+                    <div class="theme-image dark-image animated">
+                        <img src="https://images.unsplash.com/photo-1518655048521-f130df041f66?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="夜间模式插图">
+                    </div>
                 </div>
             </div>
         </div>
@@ -736,21 +791,30 @@
             <h2 class="section-title">我的作品</h2>
             <div class="card-grid">
                 <div class="work-card">
-                    <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫风格UI组件库" class="work-image">
+                    <div class="work-image-container">
+                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫风格UI组件库" class="work-image work-light-image">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫风格UI组件库夜间" class="work-image work-dark-image">
+                    </div>
                     <div class="work-overlay">
                         <h3 class="work-title">动漫风格UI组件库</h3>
                         <p>为开发者准备的二次元风格前端组件</p>
                     </div>
                 </div>
                 <div class="work-card">
-                    <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="技术博客" class="work-image">
+                    <div class="work-image-container">
+                        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="技术博客" class="work-image work-light-image">
+                        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="技术博客夜间" class="work-image work-dark-image">
+                    </div>
                     <div class="work-overlay">
                         <h3 class="work-title">技术博客</h3>
                         <p>分享前端技术和动漫相关的内容</p>
                     </div>
                 </div>
                 <div class="work-card">
-                    <img src="https://images.unsplash.com/photo-1574717024453-3545a7c210b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫资讯APP" class="work-image">
+                    <div class="work-image-container">
+                        <img src="https://images.unsplash.com/photo-1574717024453-3545a7c210b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫资讯APP" class="work-image work-light-image">
+                        <img src="https://images.unsplash.com/photo-1519327232521-1ea2c736d34d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫资讯APP夜间" class="work-image work-dark-image">
+                    </div>
                     <div class="work-overlay">
                         <h3 class="work-title">动漫资讯APP</h3>
                         <p>聚合最新动漫资讯的移动应用</p>
@@ -858,6 +922,16 @@
                     document.documentElement.setAttribute('data-theme', 'light');
                 }
                 
+                // 更新图片透明度变量
+                document.documentElement.style.setProperty(
+                    '--light-image-opacity', 
+                    theme === 'dark' ? '0' : '1'
+                );
+                document.documentElement.style.setProperty(
+                    '--dark-image-opacity', 
+                    theme === 'dark' ? '1' : '0'
+                );
+                
                 // 移除过渡类
                 setTimeout(() => {
                     document.body.classList.remove('theme-transition');
@@ -959,7 +1033,7 @@
                     const cards = document.querySelectorAll('.card');
                     const tags = document.querySelectorAll('.tag');
                     const aboutTexts = document.querySelectorAll('.about-text p');
-                    const aboutImage = document.querySelector('.about-image img');
+                    const aboutImages = document.querySelectorAll('.theme-image');
                     const skills = document.querySelectorAll('.skill-item');
                     const works = document.querySelectorAll('.work-card');
                     const contacts = document.querySelectorAll('.contact-item');
@@ -989,11 +1063,13 @@
                         }
                     });
                     
-                    if (aboutImage && this.isInViewport(aboutImage)) {
-                        setTimeout(() => {
-                            aboutImage.classList.add('animated');
-                        }, 600);
-                    }
+                    aboutImages.forEach((image, index) => {
+                        if (this.isInViewport(image)) {
+                            setTimeout(() => {
+                                image.classList.add('animated');
+                            }, index * 100 + 400);
+                        }
+                    });
                     
                     skills.forEach((skill, index) => {
                         if (this.isInViewport(skill)) {
