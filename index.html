@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,7 @@
             --accent-color: #EA4335;
             --yellow-accent: #FBBC05;
             --bg-color: #f8fafe;
-            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-bg: rgba(255, 255, 255, 0.95);
             --text-color: #3a3a3a;
             --text-light: #ffffff;
             --scrollbar-thumb: #4285F4;
@@ -35,14 +35,15 @@
             --accent-color: #f28b82;
             --yellow-accent: #fde293;
             --bg-color: #202124;
-            --card-bg: rgba(32, 33, 36, 0.9);
+            --card-bg: rgba(32, 33, 36, 0.95);
             --text-color: #e8eaed;
+            --text-light: #ffffff;
             --scrollbar-thumb: #8ab4f8;
             --scrollbar-track: #303134;
             --border-color: rgba(138, 180, 248, 0.3);
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --header-bg: rgba(138,180,248,0.05);
-            --work-overlay: rgba(32, 33, 36, 0.9);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --header-bg: rgba(138, 180, 248, 0.08);
+            --work-overlay: rgba(32, 33, 36, 0.85);
             --tag-bg: #303134;
             --skill-bg: #303134;
             --contact-bg: #303134;
@@ -55,6 +56,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
         
         /* 滚动条样式 */
@@ -89,16 +91,20 @@
             padding: 20px;
             scrollbar-width: thin;
             scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-            transition: background-color 0.5s ease, color 0.5s ease;
+            transition: background-color 0.5s ease, color 0.5s ease, background-image 0.5s ease;
         }
 
         /* 动态背景图 */
         body:not(.dark-mode) {
-            --bg-image: url('https://placeholder.pics/svg/800x600/F8FAFE/4285F4/日间背景');
+            --bg-image: linear-gradient(rgba(248, 250, 254, 0.9), rgba(248, 250, 254, 0.9)), 
+                        url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-blend-mode: overlay;
         }
 
         body.dark-mode {
-            --bg-image: url('https://placeholder.pics/svg/800x600/202124/8AB4F8/夜间背景');
+            --bg-image: linear-gradient(rgba(32, 33, 36, 0.85), rgba(32, 33, 36, 0.85)), 
+                        url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-blend-mode: overlay;
         }
         
         /* 容器 */
@@ -110,7 +116,7 @@
             animation: fadeInUp 0.8s ease forwards;
         }
         
-        /* 卡片样式 - 移除了渐变效果 */
+        /* 卡片样式 */
         .card {
             background: var(--card-bg);
             border-radius: 12px;
@@ -491,13 +497,29 @@
         }
         
         .theme-toggle:hover {
-            transform: scale(1.1) rotate(180deg);
+            transform: scale(1.1);
+        }
+        
+        .theme-toggle.clicked {
+            transform: scale(0.9) rotate(180deg);
+            background-color: var(--accent-color);
         }
         
         .theme-toggle::before {
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             content: var(--theme-icon);
+        }
+
+        /* 图片夜间模式适配 */
+        .dark-mode img {
+            filter: brightness(0.9) contrast(1.1);
+            opacity: 0.9;
+        }
+
+        .dark-mode .avatar {
+            border-color: var(--main-color);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
 
         /* 加载动画 */
@@ -549,15 +571,9 @@
             animation: slideDown 0.3s ease-out;
         }
 
-        @keyframes slideDown {
-            from {
-                top: -50px;
-                opacity: 0;
-            }
-            to {
-                top: 20px;
-                opacity: 1;
-            }
+        /* 过渡效果 */
+        .theme-transition * {
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease !important;
         }
         
         /* 动画定义 */
@@ -605,6 +621,17 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -50px;
+                opacity: 0;
+            }
+            to {
+                top: 20px;
+                opacity: 1;
+            }
         }
         
         /* 响应式设计 */
@@ -657,7 +684,7 @@
     <div class="container" id="mainContent" style="display: none;">
         <!-- 头部卡片 -->
         <div class="card header-card">
-            <img src="https://placeholder.pics/svg/150x150/4285F4/FFFFFF/头像" alt="我的头像" class="avatar">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80" alt="我的头像" class="avatar">
             <h1>慕辞</h1>
             <p class="subtitle">科技与动漫的完美结合 ✨</p>
             <div class="tags">
@@ -680,7 +707,7 @@
                     <p>🌟 在这里分享我的技术心得和二次元兴趣，欢迎交流！</p>
                 </div>
                 <div class="about-image">
-                    <img src="https://placeholder.pics/svg/300x200/4285F4/FFFFFF/二次元插图" alt="二次元风格插图">
+                    <img src="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="二次元风格插图">
                 </div>
             </div>
         </div>
@@ -709,21 +736,21 @@
             <h2 class="section-title">我的作品</h2>
             <div class="card-grid">
                 <div class="work-card">
-                    <img src="https://placeholder.pics/svg/400x250/4285F4/FFFFFF/作品1" alt="动漫风格UI组件库" class="work-image">
+                    <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫风格UI组件库" class="work-image">
                     <div class="work-overlay">
                         <h3 class="work-title">动漫风格UI组件库</h3>
                         <p>为开发者准备的二次元风格前端组件</p>
                     </div>
                 </div>
                 <div class="work-card">
-                    <img src="https://placeholder.pics/svg/400x250/34A853/FFFFFF/作品2" alt="技术博客" class="work-image">
+                    <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="技术博客" class="work-image">
                     <div class="work-overlay">
                         <h3 class="work-title">技术博客</h3>
                         <p>分享前端技术和动漫相关的内容</p>
                     </div>
                 </div>
                 <div class="work-card">
-                    <img src="https://placeholder.pics/svg/400x250/EA4335/FFFFFF/作品3" alt="动漫资讯APP" class="work-image">
+                    <img src="https://images.unsplash.com/photo-1574717024453-3545a7c210b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="动漫资讯APP" class="work-image">
                     <div class="work-overlay">
                         <h3 class="work-title">动漫资讯APP</h3>
                         <p>聚合最新动漫资讯的移动应用</p>
@@ -809,7 +836,7 @@
                 // 监听按钮点击
                 this.themeToggle.addEventListener('click', () => this.toggleTheme());
                 
-                // 监听系统主题变化
+                // 监听系统主题变化（仅当未手动设置主题时）
                 this.prefersDark.addEventListener('change', (e) => {
                     if (!localStorage.getItem('theme')) {
                         this.setTheme(e.matches ? 'dark' : 'light');
@@ -818,18 +845,34 @@
             }
             
             setTheme(theme) {
+                // 添加过渡类
+                document.body.classList.add('theme-transition');
+                
                 if (theme === 'dark') {
                     document.body.classList.add('dark-mode');
                     localStorage.setItem('theme', 'dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
                 } else {
                     document.body.classList.remove('dark-mode');
                     localStorage.setItem('theme', 'light');
+                    document.documentElement.setAttribute('data-theme', 'light');
                 }
+                
+                // 移除过渡类
+                setTimeout(() => {
+                    document.body.classList.remove('theme-transition');
+                }, 500);
             }
             
             toggleTheme() {
-                const isDark = document.body.classList.toggle('dark-mode');
-                this.setTheme(isDark ? 'dark' : 'light');
+                const isDark = document.body.classList.contains('dark-mode');
+                this.setTheme(isDark ? 'light' : 'dark');
+                
+                // 添加点击反馈
+                this.themeToggle.classList.add('clicked');
+                setTimeout(() => {
+                    this.themeToggle.classList.remove('clicked');
+                }, 300);
             }
         }
         
