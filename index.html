@@ -1056,94 +1056,160 @@
             // 初始化内容加载器
             new ContentLoader();
         });
-// 控制台监测器
-class ConsoleMonitor {
-    constructor() {
-        this.init();
-    }
-    
-    init() {
-        // 保存原始控制台方法
-        this.originalConsole = {
-            warn: console.warn,
-            error: console.error,
-            log: console.log
-        };
-        
-        // 重写控制台方法
-        this.overrideConsoleMethods();
-    }
-    
-    overrideConsoleMethods() {
-        // 重写warn方法
-        console.warn = (...args) => {
-            this.originalConsole.warn.apply(console, args);
-            this.showNotification('警告', args.join(' '), 'var(--yellow-accent)');
-        };
-        
-        // 重写error方法
-        console.error = (...args) => {
-            this.originalConsole.error.apply(console, args);
-            this.showNotification('错误', args.join(' '), 'var(--accent-color)');
-        };
-        
-        // 可选：重写log方法
-        console.log = (...args) => {
-            this.originalConsole.log.apply(console, args);
-            // this.showNotification('日志', args.join(' '), 'var(--main-color)');
-        };
-    }
-    
-    showNotification(type, message, color) {
-        const notification = document.createElement('div');
-        notification.className = 'console-notification';
-        notification.style = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: ${color};
-            color: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 1000;
-            max-width: 400px;
-            word-break: break-word;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s ease-out;
-        `;
-        
-        notification.innerHTML = `
-            <i class="fas ${type === '警告' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'}"></i>
-            <div>
-                <strong>控制台${type}:</strong>
-                <div>${message}</div>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // 5秒后自动消失
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 500);
-        }, 5000);
-    }
-}
+/*!
+ * console-ban v5.0.0
+ * (c) 2020-2023 fz6m
+ * Released under the MIT License.
+ */
+!(function (e, t) {
+  typeof exports == 'object' && typeof module != 'undefined'
+      ? t(exports)
+      : typeof define == 'function' && define.amd
+      ? define(['exports'], t)
+      : t(((e = typeof globalThis != 'undefined' ? globalThis : e || self).ConsoleBan = {}))
+})(this, function (e) {
+  'use strict'
+  var t = function () {
+      return (
+          (t =
+              Object.assign ||
+              function (e) {
+                  for (var t, n = 1, i = arguments.length; n < i; n++) {
+                      for (var o in (t = arguments[n])) {
+                          Object.prototype.hasOwnProperty.call(t, o) && (e[o] = t[o])
+                      }
+                  }
+                  return e
+              }),
+          t.apply(this, arguments)
+      )
+  }
+  var n = { clear: !0, debug: !0, debugTime: 3e3, bfcache: !0 }
+  var i = 2
+  var o = function (e) {
+      return ~navigator.userAgent.toLowerCase().indexOf(e)
+  }
+  var r = function (e, t) {
+      t !== i ? (location.href = e) : location.replace(e)
+  }
+  var c = 0
+  var a = 0
+  var f = function (e) {
+      var t = 0
+      var n = 1 << c++
+      return function () {
+          ;(!a || a & n) && ++t === 2 && ((a |= n), e(), (t = 1))
+      }
+  }
+  var s = function (e) {
+      var t = /./
+      t.toString = f(e)
+      var n = function () {
+          return t
+      }
+      n.toString = f(e)
+      var i = new Date()
+      ;(i.toString = f(e)), console.log('%c', n, n(), i)
+      var o
+      var r
+      var c = f(e)
+      ;(o = c),
+          (r = new Error()),
+          Object.defineProperty(r, 'message', {
+              get: function () {
+                  o()
+              }
+          }),
+          console.log(r)
+  }
+  var u = (function () {
+      function e(e) {
+          var i = t(t({}, n), e)
+          var o = i.clear
+          var r = i.debug
+          var c = i.debugTime
+          var a = i.callback
+          var f = i.redirect
+          var s = i.write
+          var u = i.bfcache
+          ;(this._debug = r),
+              (this._debugTime = c),
+              (this._clear = o),
+              (this._bfcache = u),
+              (this._callback = a),
+              (this._redirect = f),
+              (this._write = s)
+      }
+      return (
+          (e.prototype.clear = function () {
+              this._clear && (console.clear = function () {})
+          }),
+          (e.prototype.bfcache = function () {
+              this._bfcache &&
+                  (window.addEventListener('unload', function () {}),
+                  window.addEventListener('beforeunload', function () {}))
+          }),
+          (e.prototype.debug = function () {
+              if (this._debug) {
+                  var e = new Function('debugger')
+                  setInterval(e, this._debugTime)
+              }
+          }),
+          (e.prototype.redirect = function (e) {
+              var t = this._redirect
+              if (t) {
+                  if (t.indexOf('http') !== 0) {
+                      var n
+                      var i = location.pathname + location.search
+                      if (((n = t) ? (n[0] !== '/' ? '/'.concat(n) : n) : '/') !== i) r(t, e)
+                  } else location.href !== t && r(t, e)
+              }
+          }),
+          (e.prototype.callback = function () {
+              if ((this._callback || this._redirect || this._write) && window) {
+                  var e
+                  var t = this.fire.bind(this)
+                  var n = window.chrome || o('chrome')
+                  var r = o('firefox')
+                  if (!n) {
+                      return r
+                          ? (((e = /./).toString = t), void console.log(e))
+                          : void (function (e) {
+                                var t = new Image()
+                                Object.defineProperty(t, 'id', {
+                                    get: function () {
+                                        e(i)
+                                    }
+                                }),
+                                    console.log(t)
+                            })(t)
+                  }
+                  s(t)
+              }
+          }),
+          (e.prototype.write = function () {
+              var e = this._write
+              e && (document.body.innerHTML = typeof e == 'string' ? e : e.innerHTML)
+          }),
+          (e.prototype.fire = function (e) {
+              this._callback
+                  ? this._callback.call(null)
+                  : (this.redirect(e), this._redirect || this.write())
+          }),
+          (e.prototype.prepare = function () {
+              this.clear(), this.bfcache(), this.debug()
+          }),
+          (e.prototype.ban = function () {
+              this.prepare(), this.callback()
+          }),
+          e
+      )
+  })()
+  e.init = function (e) {
+      new u(e).ban()
+  }
+})
 
-// 在DOM加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    // 初始化控制台监测器
-    new ConsoleMonitor();
-    
-    // 其他初始化代码...
-    new ThemeManager();
-    new ContentLoader();
-});
     </script>
 </body>
 </html>
