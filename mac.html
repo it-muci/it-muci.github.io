@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的个人主页 - 仿 iOS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* 通用样式和字体 */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            overflow: hidden; /* 防止滚动条 */
+            background: url('https://4kwallpapers.com/images/walls/thumbs_2t/5893.jpg') no-repeat center center fixed; /* macOS 壁纸 */
+            background-size: cover;
+            color: #fff;
+            cursor: default;
+            /* 禁用iOS弹性滚动，避免与页面拖拽冲突 */
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y; /* 允许垂直滚动，但可以被JS覆盖 */
+        }
+
+        /* 顶部菜单栏 (macOS 样式) */
+        .menu-bar {
+            background-color: rgba(0, 0, 0, 0.6); /* 半透明黑色 */
+            backdrop-filter: blur(10px); /* 磨砂效果 */
+            color: #f0f0f0;
+            height: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 13px;
+            user-select: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .menu-left, .menu-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .apple-logo {
+            font-size: 16px;
+            margin-right: 15px;
+        }
+
+        .menu-item {
+            padding: 0 8px;
+            cursor: pointer;
+        }
+
+        .menu-item.active, .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .menu-icon {
+            margin-left: 10px;
+        }
+
+        /* 桌面区域 (macOS 样式) */
+        .desktop {
+            position: absolute;
+            top: 22px; /* 菜单栏高度 */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start; /* 图标从顶部开始排列 */
+            padding: 20px;
+        }
+
+        .desktop-icon {
+            width: 80px;
+            text-align: center;
+            margin: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Font Awesome 图标样式调整 */
+        .desktop-icon .fa-solid, .desktop-icon .fa-brands {
+            font-size: 64px; /* 桌面图标尺寸 */
+            margin-bottom: 5px;
+        }
+
+        /* 底部 Dock 栏 (macOS 样式) */
+        .dock {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 5px 10px;
+            display: flex;
+            align-items: flex-end; /* 使图标底部对齐 */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+        }
+
+        .dock-item {
+            margin: 0 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-out; /* 缩放动画 */
+            position: relative;
+            padding-bottom: 5px; /* 为文字留出空间 */
+        }
+
+        /* Font Awesome 图标样式调整：Dock 栏默认尺寸 */
+        .dock-item .fa-solid, .dock-item .fa-brands {
+            font-size: 40px; /* 默认尺寸从 50px 缩小到 40px */
+            display: block;
+            transition: transform 0.2s ease-out; /* 为图标本身添加过渡 */
+        }
+
+        .dock-item span {
+            display: none; /* 默认隐藏文字 */
+            color: #fff;
+            font-size: 11px;
+            position: absolute;
+            bottom: -15px; /* 文字在图标下方 */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .dock-item:hover {
+            transform: translateY(-10px); /* 悬停抬起效果 */
+        }
+
+        .dock-item:hover + .dock-item,
+        .dock-item:hover + .dock-item + .dock-item { /* 模拟相邻图标的缩放 */
+            transform: translateY(-5px) scale(1.1);
+        }
+
+        /* Dock 栏悬停时图标放大效果 */
+        .dock-item:hover .fa-solid, .dock-item:hover .fa-brands {
+            transform: scale(1.4); /* 悬停时放大到 1.4 倍，比之前更大 */
+        }
+
+        .dock-item:hover span {
+            display: block; /* 悬停显示文字 */
+        }
+
+
+        /* 模态窗口 */
+        .modal-window {
+            background-color: rgba(230, 230, 230, 0.95); /* 更接近 macOS 窗口的背景色 */
+            backdrop-filter: blur(15px); /* 强化磨砂效果 */
+            border-radius: 10px; /* 更大的圆角 */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); /* 更深的阴影 */
+            width: 600px;
+            height: 400px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* 默认隐藏 */
+            flex-direction: column;
+            overflow: hidden;
+            color: #333;
+            resize: both; /* 允许调整大小 */
+            overflow: auto;
+            min-width: 300px;
+            min-height: 200px;
+            transition: transform 0.2s ease-out; /* 添加打开/关闭的平滑过渡 */
+            touch-action: none; /* 防止窗口内容滚动 */
+        }
+
+        .modal-window.active {
+            display: flex;
+            z-index: 998; /* 确保激活的窗口在 Dock 栏下方 */
+            transform: translate(-50%, -50%) scale(1); /* 确保激活时没有额外的缩放 */
+            opacity: 1;
+        }
+
+        /* 窗口标题栏 */
+        .window-header {
+            background-color: #e0e0e0;
+            background: linear-gradient(to bottom, #e0e0e0, #d0d0d0); /* 渐变效果 */
+            border-bottom: 1px solid #c0c0c0; /* 更细的底部边框 */
+            border-top-left-radius: 10px; /* 配合窗口圆角 */
+            border-top-right-radius: 10px; /* 配合窗口圆角 */
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* 标题居中 */
+            position: relative;
+            cursor: grab; /* 可拖拽 */
+            user-select: none; /* 防止拖拽时选中文字 */
+        }
+
+        /* 窗口控制按钮 */
+        .window-controls {
+            position: absolute;
+            left: 12px; /* 稍作调整，更像 macOS */
+            display: flex;
+            align-items: center;
+        }
+
+        .window-controls span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px; /* 按钮间距 */
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 1px rgba(0, 0, 0, 0.1); /* 按钮内部高光和外部阴影 */
+            transition: background-color 0.1s ease-in-out; /* 悬停动画 */
+        }
+
+        /* 按钮颜色和悬停效果 */
+        .close-btn { background-color: #ff5f56; } /* 红色关闭按钮 */
+        .minimize-btn { background-color: #ffbd2e; } /* 黄色最小化按钮 */
+        .maximize-btn { background-color: #27c93f; } /* 绿色最大化按钮 */
+
+        .window-controls span:hover {
+            opacity: 0.8; /* 悬停时稍微透明 */
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.15); /* 悬停时阴影变化 */
+        }
+
+        /* 鼠标悬停在控制按钮上时显示小圆点 */
+        .close-btn:hover::before { content: '\f00d'; font-family: 'Font Awesome 5 Free'; font-weight: 900; font-size: 9px; color: rgba(100, 0, 0, 0.8); position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: block; }
+        .minimize-btn:hover::before { content: '\f068'; font-family: 'Font Awesome 5 Free'; font-weight: 900; font-size: 9px; color: rgba(100, 70, 0, 0.8); position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: block; }
+        .maximize-btn:hover::before { content: '\f065'; font-family: 'Font Awesome 5 Free'; font-weight: 900; font-size: 9px; color: rgba(0, 100, 0, 0.8); position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: block; }
+
+        /* 隐藏默认显示的小圆点 */
+        .window-controls span::before {
+            display: none;
+        }
+
+        .window-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .window-content {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            color: #444;
+            background-color: #f5f5f5; /* 窗口内容区背景 */
+            border-bottom-left-radius: 10px; /* 配合窗口圆角 */
+            border-bottom-right-radius: 10px; /* 配合窗口圆角 */
+            -webkit-overflow-scrolling: touch; /* 启用iOS平滑滚动 */
+        }
+
+        .project-item {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+        .project-item:last-child {
+            border-bottom: none;
+        }
+        .project-item h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .project-item p {
+            margin-bottom: 5px;
+        }
+        .project-item a {
+            color: #007aff;
+            text-decoration: none;
+        }
+        .project-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- 移动端（iOS 样式） --- */
+        @media (max-width: 768px) {
+            body {
+                background-size: cover;
+                /* iOS 风格的背景色，模拟主屏幕背景 */
+                background-color: #2b3a4a;
+                background-image: url("https://p2.itc.cn/q_70/images03/20211022/e036ad68796a4c7285f78f965702e320.png"); /* 移动端不使用 macOS 壁纸，或者使用 iOS 风格壁纸 */
+                overscroll-behavior-y: contain; /* 防止背景滚动 */
+            }
+
+            /* 隐藏 macOS 菜单栏 */
+            .menu-bar {
+                display: none;
+            }
+
+            /* 模拟 iOS 状态栏 */
+            .ios-status-bar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 40px; /* iOS 状态栏高度 */
+                background-color: rgba(0, 0, 0, 0.2); /* 半透明背景 */
+                backdrop-filter: blur(10px);
+                color: #fff;
+                display: flex !important; /* 强制显示 */
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 15px;
+                font-size: 13px;
+                z-index: 1000;
+                font-weight: 600; /* iOS 状态栏字体更粗 */
+                -webkit-app-region: drag; /* 模拟可拖拽区域 */
+            }
+
+            .ios-status-bar .time {
+                font-weight: 600;
+            }
+
+            .ios-status-bar .icons {
+                display: flex;
+                align-items: center;
+            }
+
+            .ios-status-bar .icons i {
+                margin-left: 8px;
+                font-size: 14px;
+            }
+            .ios-status-bar .icons .fa-battery-full {
+                position: relative;
+                width: 25px; /* 电池图标宽度 */
+                height: 12px; /* 电池图标高度 */
+                border: 1px solid rgba(255, 255, 255, 0.7);
+                border-radius: 3px;
+                margin-left: 10px;
+                font-size: 0; /* 隐藏 Font Awesome 默认电池图标 */
+            }
+            .ios-status-bar .icons .fa-battery-full::before {
+                content: '';
+                position: absolute;
+                top: 1px;
+                left: 1px;
+                bottom: 1px;
+                width: 70%; /* 模拟电池电量 */
+                background-color: #fff;
+                border-radius: 2px;
+            }
+            .ios-status-bar .icons .fa-battery-full::after {
+                content: '';
+                position: absolute;
+                top: 3px;
+                right: -4px;
+                width: 2px;
+                height: 6px;
+                background-color: rgba(255, 255, 255, 0.7);
+                border-radius: 0 1px 1px 0;
+            }
+
+
+            /* 桌面区域调整为 iOS 应用网格 */
+            .desktop {
+                top: 40px; /* 状态栏高度 */
+                bottom: 80px; /* Dock 栏和 Home 指示条高度 */
+                padding: 20px 10px;
+                align-content: flex-start;
+                justify-content: center; /* 居中排列图标 */
+                display: flex; /* Ensure it's a flex container */
+                flex-wrap: wrap; /* Allow icons to wrap */
+                overflow-y: auto; /* Enable scrolling for icons */
+                -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
+            }
+
+            .desktop-icon {
+                width: 75px; /* iOS 应用图标大小 */
+                height: 90px; /* 包含标题的高度 */
+                margin: 8px; /* 间距 */
+                color: #fff;
+                text-shadow: none; /* iOS 图标没有阴影文字 */
+                flex-shrink: 0; /* Prevent icons from shrinking */
+            }
+
+            .desktop-icon .fa-solid, .desktop-icon .fa-brands {
+                font-size: 55px; /* iOS 应用图标视觉大小 */
+                width: 60px; /* 背景容器大小 */
+                height: 60px;
+                /* 模拟 iOS 图标背景色和边框 */
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 18%; /* iOS 典型的“方圆”图标 */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 5px;
+                overflow: hidden; /* 确保图标超出部分被裁剪 */
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 5px rgba(0, 0, 0, 0.2); /* 轻微内阴影和外阴影 */
+            }
+
+            .desktop-icon span {
+                font-size: 11px;
+                text-align: center;
+                line-height: 1.2;
+                max-width: 100%; /* Prevent text overflow */
+                white-space: normal; /* Allow text to wrap if too long */
+                word-break: break-word; /* Break long words */
+            }
+
+            /* Dock 栏调整为 iOS Dock */
+            .dock {
+                bottom: 50px; /* 顶部状态栏、Dock、Home 指示条的高度布局 */
+                height: 70px; /* iOS Dock 的高度 */
+                width: 90%; /* 宽度占满 */
+                max-width: 380px; /* 最大宽度 */
+                border-radius: 18px; /* iOS Dock 的圆角 */
+                padding: 5px 10px;
+                align-items: center; /* 垂直居中图标 */
+                justify-content: space-around; /* 均匀分布图标 */
+                transform: translateX(-50%); /* 确保水平居中 */
+                box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3); /* 调整Dock阴影 */
+                background-color: rgba(0, 0, 0, 0.3); /* 调整Dock背景透明度 */
+            }
+
+            .dock-item {
+                margin: 0; /* 移除额外边距 */
+                padding-bottom: 0; /* 移除文字留白 */
+                transition: none; /* 移除悬停动画 */
+            }
+
+            .dock-item .fa-solid, .dock-item .fa-brands {
+                font-size: 48px; /* iOS Dock 图标尺寸 */
+                width: 60px; /* 背景容器大小 */
+                height: 60px;
+                background-color: rgba(255, 255, 255, 0.2); /* 模拟图标背景色 */
+                border-radius: 18%; /* iOS 典型的“方圆”图标 */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transform: scale(1); /* 移除悬停时的放大 */
+                transition: none;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 5px rgba(0, 0, 0, 0.2); /* 轻微内阴影和外阴影 */
+            }
+
+            .dock-item span {
+                display: none; /* 移动端 Dock 不显示文字 */
+            }
+
+            .dock-item:hover {
+                transform: none; /* 移除悬停抬起效果 */
+            }
+
+            .dock-item:hover + .dock-item,
+            .dock-item:hover + .dock-item + .dock-item {
+                transform: none; /* 移除相邻图标的缩放 */
+            }
+
+            .dock-item:hover .fa-solid, .dock-item:hover .fa-brands {
+                transform: scale(1); /* 移除悬停放大 */
+            }
+
+            /* 模拟 Home 指示条 */
+            .ios-home-indicator {
+                position: fixed;
+                bottom: 8px; /* 底部位置 */
+                left: 50%;
+                transform: translateX(-50%);
+                width: 130px; /* 指示条宽度 */
+                height: 4px; /* 指示条高度 */
+                background-color: rgba(255, 255, 255, 0.7); /* 白色半透明 */
+                border-radius: 2px;
+                z-index: 1000;
+                display: block !important; /* 强制显示 */
+            }
+
+            /* 模态窗口调整为 iOS 风格的弹窗 */
+            .modal-window {
+                width: 90%; /* 占据大部分屏幕宽度 */
+                height: 80%; /* 占据大部分屏幕高度 */
+                border-radius: 15px; /* 更大的圆角 */
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* 柔和阴影 */
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                overflow: hidden; /* 确保内容不溢出圆角 */
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* iOS 风格的打开动画 */
+                touch-action: pan-y; /* 允许窗口内容滚动 */
+            }
+
+            .modal-window.active {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            /* 隐藏 desktop 区域的滚动条 */
+            .desktop::-webkit-scrollbar {
+                display: none;
+            }
+            .desktop {
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+
+            .window-header {
+                background: linear-gradient(to bottom, #f0f0f0, #e0e0e0); /* iOS 标题栏渐变 */
+                border-bottom: 1px solid #d0d0d0;
+                height: 44px; /* iOS 导航栏高度 */
+                padding: 0 10px;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+                position: relative; /* 确保子元素可以定位 */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: default; /* 移动端标题栏不可拖拽 */
+            }
+
+            .window-controls {
+                display: none; /* iOS 弹窗通常没有红黄绿按钮 */
+            }
+
+            .window-title {
+                font-size: 17px;
+                font-weight: 600;
+                color: #333;
+                position: static; /* 恢复静态定位 */
+                transform: none; /* 移除偏移 */
+            }
+            
+            /* 在移动端模态窗口中添加一个关闭按钮 */
+            .modal-window .close-button-mobile {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #007aff; /* iOS 蓝色 */
+                font-size: 16px;
+                cursor: pointer;
+                font-weight: normal;
+                display: block !important; /* 强制显示 */
+            }
+
+            .window-content {
+                padding: 15px;
+                border-bottom-left-radius: 15px;
+                border-bottom-right-radius: 15px;
+                overflow-y: auto; /* 确保内容可以滚动 */
+                -webkit-overflow-scrolling: touch; /* 启用iOS平滑滚动 */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="menu-bar">
+        <div class="menu-left">
+            <span class="apple-logo"><i class="fa-brands fa-apple"></i></span>
+            <span class="menu-item active">Finder</span>
+            <span class="menu-item">文件</span>
+            <span class="menu-item">编辑</span>
+            <span class="menu-item">视图</span>
+            <span class="menu-item">前往</span>
+            <span class="menu-item">窗口</span>
+            <span class="menu-item">帮助</span>
+        </div>
+        <div class="menu-right">
+            <i class="fas fa-wifi menu-icon"></i>
+            <i class="fas fa-search menu-icon"></i>
+            <i class="fas fa-battery-half menu-icon"></i>
+            <i class="fas fa-control-tower menu-icon"></i>
+            <span class="menu-item time" id="current-time"></span>
+        </div>
+    </div>
+
+    <div class="ios-status-bar" style="display: none;">
+        <span class="time" id="ios-current-time"></span>
+        <div class="icons">
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <div class="desktop">
+        <div class="desktop-icon" id="about-me-icon">
+            <i class="fa-solid fa-user-circle"></i> <span>关于我</span>
+        </div>
+        <div class="desktop-icon" id="portfolio-icon">
+            <i class="fa-solid fa-folder-open"></i> <span>作品集</span>
+        </div>
+        <div class="desktop-icon" id="contact-icon">
+            <i class="fa-solid fa-envelope"></i> <span>联系我</span>
+        </div>
+        </div>
+
+    <div class="dock">
+        <div class="dock-item" data-target="about-me-modal">
+            <i class="fa-solid fa-globe"></i> <span>关于我</span>
+        </div>
+        <div class="dock-item" data-target="portfolio-modal">
+            <i class="fa-solid fa-image"></i> <span>作品集</span>
+        </div>
+        <div class="dock-item">
+            <a href="https://github.com/your-github" target="_blank" style="text-decoration: none; color: inherit;">
+                <i class="fa-brands fa-github"></i> <span>GitHub</span>
+            </a>
+        </div>
+        <div class="dock-item" data-target="contact-modal">
+            <i class="fa-solid fa-paper-plane"></i> <span>联系我</span>
+        </div>
+        <div class="dock-item">
+            <a href="https://your-blog.com" target="_blank" style="text-decoration: none; color: inherit;">
+                <i class="fa-solid fa-blog"></i> <span>博客</span>
+            </a>
+        </div>
+        </div>
+
+    <div id="modal-container">
+        <div class="modal-window" id="about-me-modal">
+            <div class="window-header">
+                <div class="window-controls">
+                    <span class="close-btn"></span>
+                    <span class="minimize-btn"></span>
+                    <span class="maximize-btn"></span>
+                </div>
+                <span class="window-title">关于我</span>
+                <span class="close-button-mobile" style="display: none;">完成</span> </div>
+            <div class="window-content">
+                <h2>👋 你好，我是 [你的名字]！</h2>
+                <p>一位热爱前端开发和用户体验的开发者。</p>
+                <p>我专注于使用现代 Web 技术构建高效、美观、易用的网站和应用。</p>
+                <h3>技能栈：</h3>
+                <ul>
+                    <li>**前端：** HTML, CSS, JavaScript (ES6+), React/Vue/Angular (根据你的实际技能)</li>
+                    <li>**后端：** Node.js, Python (Django/Flask), PHP (根据你的实际技能)</li>
+                    <li>**数据库：** MySQL, PostgreSQL, MongoDB (根据你的实际技能)</li>
+                    <li>**工具：** Git, Webpack, Babel</li>
+                </ul>
+                <p>期待与你一起探索 Web 的无限可能！</p>
+            </div>
+        </div>
+
+        <div class="modal-window" id="portfolio-modal">
+            <div class="window-header">
+                <div class="window-controls">
+                    <span class="close-btn"></span>
+                    <span class="minimize-btn"></span>
+                    <span class="maximize-btn"></span>
+                </div>
+                <span class="window-title">我的作品集</span>
+                <span class="close-button-mobile" style="display: none;">完成</span> </div>
+            <div class="window-content">
+                <h3>精选项目：</h3>
+                <div class="project-item">
+                    <h4>项目一：[项目名称]</h4>
+                    <p>这是一个关于 [项目简介] 的项目。我负责了 [你的职责] 部分。</p>
+                    <p>使用了技术栈：[技术栈]</p>
+                    <a href="[项目链接]" target="_blank">查看项目</a> | <a href="[GitHub链接]" target="_blank">GitHub</a>
+                </div>
+                <div class="project-item">
+                    <h4>项目二：[项目名称]</h4>
+                    <p>这是一个关于 [项目简介] 的项目。主要实现了 [主要功能]。</p>
+                    <p>使用了技术栈：[技术栈]</p>
+                    <a href="[项目链接]" target="_blank">查看项目</a> | <a href="[GitHub链接]" target="_blank">GitHub</a>
+                </div>
+                <p>更多项目请访问我的 <a href="https://github.com/your-github" target="_blank">GitHub 主页</a>。</p>
+            </div>
+        </div>
+
+        <div class="modal-window" id="contact-modal">
+            <div class="window-header">
+                <div class="window-controls">
+                    <span class="close-btn"></span>
+                    <span class="minimize-btn"></span>
+                    <span class="maximize-btn"></span>
+                </div>
+                <span class="window-title">联系我</span>
+                <span class="close-button-mobile" style="display: none;">完成</span> </div>
+            <div class="window-content">
+                <h3>📬 欢迎联系我！</h3>
+                <p>如果你对我的作品感兴趣，或者有任何合作意向，随时可以通过以下方式联系我：</p>
+                <ul>
+                    <li>**邮箱：** <a href="mailto:your-email@example.com">your-email@example.com</a></li>
+                    <li>**GitHub：** <a href="https://github.com/your-github" target="_blank">github.com/your-github</a></li>
+                    <li>**领英：** <a href="https://linkedin.com/in/your-linkedin" target="_blank">linkedin.com/in/your-linkedin</a> (如果使用)</li>
+                    <li>**微信：** [你的微信号] (如果愿意公开)</li>
+                </ul>
+                <p>期待与你交流！</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="ios-home-indicator" style="display: none;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 获取元素
+            const dockItems = document.querySelectorAll('.dock-item');
+            const desktopIcons = document.querySelectorAll('.desktop-icon');
+            const modalWindows = document.querySelectorAll('.modal-window');
+            const closeButtons = document.querySelectorAll('.close-btn');
+            const mobileCloseButtons = document.querySelectorAll('.close-button-mobile'); // 新增移动端关闭按钮
+            const windowHeaders = document.querySelectorAll('.window-header');
+            const currentTimeSpan = document.getElementById('current-time');
+            const iosCurrentTimeSpan = document.getElementById('ios-current-time'); // iOS 状态栏时间
+
+            // --- 时间显示 ---
+            function updateTime() {
+                const now = new Date();
+                const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+                currentTimeSpan.textContent = now.toLocaleTimeString('zh-CN', options);
+                iosCurrentTimeSpan.textContent = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }); // iOS 状态栏显示简短时间
+            }
+            setInterval(updateTime, 1000);
+            updateTime(); // 立即更新一次
+
+            // --- 打开模态窗口 ---
+            function openModal(modalId) {
+                modalWindows.forEach(modal => {
+                    modal.classList.remove('active'); // 关闭所有当前打开的窗口
+                    modal.style.zIndex = 997; // 降低所有窗口的 z-index
+                });
+                const targetModal = document.getElementById(modalId);
+                if (targetModal) {
+                    targetModal.classList.add('active');
+                    targetModal.style.zIndex = 998; // 确保新打开的窗口在最上层
+                }
+            }
+
+            dockItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    // 防止点击 Dock 中的链接直接跳转，而是在模态窗口中处理
+                    if (item.querySelector('a') && e.target.tagName === 'I') {
+                        e.preventDefault();
+                        const targetId = item.dataset.target;
+                        if (targetId) {
+                            openModal(targetId);
+                        }
+                    } else if (item.querySelector('a') && (e.target.tagName === 'A' || e.target.tagName === 'SPAN')) {
+                        // 如果点击的是链接或文本，则允许其默认行为（跳转）
+                        return;
+                    } else {
+                        const targetId = item.dataset.target;
+                        if (targetId) {
+                            openModal(targetId);
+                        }
+                    }
+                });
+            });
+
+
+            desktopIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const targetId = icon.id.replace('-icon', '-modal'); // 根据图标ID推断模态窗口ID
+                    openModal(targetId);
+                });
+            });
+
+            // --- 关闭模态窗口 ---
+            closeButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal-window');
+                    if (modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+
+            // 移动端关闭按钮事件监听
+            mobileCloseButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal-window');
+                    if (modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+
+            // --- 模态窗口拖拽 ---
+            windowHeaders.forEach(header => {
+                let isDragging = false;
+                let offsetX, offsetY;
+                const modal = header.closest('.modal-window');
+
+                header.addEventListener('mousedown', (e) => {
+                    // 阻止移动端触摸事件的默认行为，避免滚动
+                    if (window.innerWidth <= 768) {
+                        e.preventDefault();
+                        return; // 移动端标题栏不拖拽
+                    }
+                    isDragging = true;
+                    offsetX = e.clientX - modal.getBoundingClientRect().left;
+                    offsetY = e.clientY - modal.getBoundingClientRect().top;
+                    modal.style.cursor = 'grabbing';
+                    modal.style.transition = 'none'; // 拖拽时取消过渡效果
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    modal.style.left = `${e.clientX - offsetX}px`;
+                    modal.style.top = `${e.clientY - offsetY}px`;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    modal.style.cursor = 'grab';
+                    modal.style.transition = ''; // 恢复过渡效果
+                });
+
+                // 移动端触摸事件处理 (仅在窗口内容允许滚动，标题栏不应拖拽)
+                // 仅在桌面端拖拽生效，移动端取消标题栏拖拽功能
+                if (window.innerWidth <= 768) {
+                    header.style.cursor = 'default';
+                }
+            });
+
+
+            // --- 窗口激活管理 (点击窗口使其置顶) ---
+            modalWindows.forEach(modal => {
+                modal.addEventListener('mousedown', () => {
+                    // 将所有非当前窗口的 z-index 降低
+                    modalWindows.forEach(m => {
+                        if (m !== modal) {
+                            m.style.zIndex = 997;
+                        }
+                    });
+                    // 提升当前点击的窗口的 z-index
+                    modal.style.zIndex = 998;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
