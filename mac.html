@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的个人主页 - 仿 iOS</title>
+    <title>我的个人主页 - 仿 iOS/macOS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
@@ -75,6 +75,8 @@
             flex-wrap: wrap;
             align-content: flex-start; /* 图标从顶部开始排列 */
             padding: 20px;
+            perspective: 1000px; /* For 3D transforms */
+            overflow: hidden; /* Prevent desktop scrolling */
         }
 
         .desktop-icon {
@@ -87,7 +89,15 @@
             align-items: center;
             color: #fff;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            user-select: none;
+            transition: transform 0.1s ease-out; /* For hover/active states */
+            position: relative; /* For context menu positioning */
         }
+        .desktop-icon.dragging {
+            opacity: 0.7;
+            cursor: grabbing;
+        }
+
 
         /* Font Awesome 图标样式调整 */
         .desktop-icon .fa-solid, .desktop-icon .fa-brands {
@@ -101,38 +111,44 @@
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(15px);
+            background-color: rgba(0, 0, 0, 0.3); /* Optimized transparency */
+            backdrop-filter: blur(20px); /* Optimized blur */
             border-radius: 15px;
             padding: 5px 10px;
             display: flex;
             align-items: flex-end; /* 使图标底部对齐 */
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05); /* Optimized shadow and inner highlight */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle light border */
             z-index: 999;
+            will-change: transform; /* Hint for performance */
         }
 
         .dock-item {
             margin: 0 5px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s ease-out; /* 缩放动画 */
             position: relative;
             padding-bottom: 5px; /* 为文字留出空间 */
+            transform-origin: bottom; /* 缩放时从底部开始 */
+            transition: transform 0.1s ease-out; /* Smooth transition for scaling */
         }
 
         /* Font Awesome 图标样式调整：Dock 栏默认尺寸 */
         .dock-item .fa-solid, .dock-item .fa-brands {
             font-size: 40px; /* 默认尺寸从 50px 缩小到 40px */
             display: block;
-            transition: transform 0.2s ease-out; /* 为图标本身添加过渡 */
+            transition: transform 0.1s ease-out; /* 为图标本身添加过渡 */
         }
 
         .dock-item span {
-            display: none; /* 默认隐藏文字 */
+            display: block; /* Always render, but control visibility with opacity */
+            opacity: 0;
+            pointer-events: none; /* Prevent interaction when hidden */
+            transition: opacity 0.2s ease-out, bottom 0.2s ease-out; /* Add transition for tooltip */
             color: #fff;
             font-size: 11px;
             position: absolute;
-            bottom: -15px; /* 文字在图标下方 */
+            bottom: -20px; /* Start a bit lower for slide-up effect */
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(0, 0, 0, 0.7);
@@ -141,22 +157,10 @@
             white-space: nowrap;
         }
 
-        .dock-item:hover {
-            transform: translateY(-10px); /* 悬停抬起效果 */
-        }
-
-        .dock-item:hover + .dock-item,
-        .dock-item:hover + .dock-item + .dock-item { /* 模拟相邻图标的缩放 */
-            transform: translateY(-5px) scale(1.1);
-        }
-
         /* Dock 栏悬停时图标放大效果 */
-        .dock-item:hover .fa-solid, .dock-item:hover .fa-brands {
-            transform: scale(1.4); /* 悬停时放大到 1.4 倍，比之前更大 */
-        }
-
         .dock-item:hover span {
-            display: block; /* 悬停显示文字 */
+            opacity: 1; /* Fade in */
+            bottom: -15px; /* Slide up to final position */
         }
 
 
@@ -171,24 +175,32 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            display: none; /* 默认隐藏 */
+            transform: translate(-50%, -50%) scale(0.8); /* Initial scale for bounce-in */
+            opacity: 0; /* Initially hidden */
+            display: flex; /* Always flex, control visibility with opacity/scale */
             flex-direction: column;
             overflow: hidden;
             color: #333;
             resize: both; /* 允许调整大小 */
-            overflow: auto;
             min-width: 300px;
             min-height: 200px;
-            transition: transform 0.2s ease-out; /* 添加打开/关闭的平滑过渡 */
-            touch-action: none; /* 防止窗口内容滚动 */
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out; /* Bounce transition */
+            z-index: 997; /* Default z-index */
+            will-change: transform, opacity; /* Hint for performance */
         }
 
         .modal-window.active {
-            display: flex;
-            z-index: 998; /* 确保激活的窗口在 Dock 栏下方 */
-            transform: translate(-50%, -50%) scale(1); /* 确保激活时没有额外的缩放 */
+            transform: translate(-50%, -50%) scale(1);
             opacity: 1;
+        }
+
+        .modal-window.minimizing {
+            transform: translate(-50%, 100vh) scale(0.1); /* Animate to bottom right */
+            opacity: 0;
+        }
+
+        .modal-window.hidden {
+            display: none; /* Truly hide after animation */
         }
 
         /* 窗口标题栏 */
@@ -205,6 +217,7 @@
             position: relative;
             cursor: grab; /* 可拖拽 */
             user-select: none; /* 防止拖拽时选中文字 */
+            flex-shrink: 0; /* Prevent header from shrinking */
         }
 
         /* 窗口控制按钮 */
@@ -223,6 +236,7 @@
             cursor: pointer;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 1px rgba(0, 0, 0, 0.1); /* 按钮内部高光和外部阴影 */
             transition: background-color 0.1s ease-in-out; /* 悬停动画 */
+            position: relative; /* For pseudo-elements */
         }
 
         /* 按钮颜色和悬停效果 */
@@ -285,6 +299,39 @@
         .project-item a:hover {
             text-decoration: underline;
         }
+
+        /* Context Menu (Right-Click Menu) */
+        .context-menu {
+            position: absolute;
+            background-color: rgba(230, 230, 230, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 5px 0;
+            min-width: 150px;
+            z-index: 1001; /* Above everything */
+            display: none; /* Hidden by default */
+            color: #333;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .context-menu-item:hover {
+            background-color: #007aff;
+            color: #fff;
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.1);
+            margin: 5px 0;
+        }
+
 
         /* --- 移动端（iOS 样式） --- */
         @media (max-width: 768px) {
@@ -385,6 +432,7 @@
                 color: #fff;
                 text-shadow: none; /* iOS 图标没有阴影文字 */
                 flex-shrink: 0; /* Prevent icons from shrinking */
+                touch-action: none; /* Enable custom drag */
             }
 
             .desktop-icon .fa-solid, .desktop-icon .fa-brands {
@@ -424,6 +472,7 @@
                 transform: translateX(-50%); /* 确保水平居中 */
                 box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3); /* 调整Dock阴影 */
                 background-color: rgba(0, 0, 0, 0.3); /* 调整Dock背景透明度 */
+                border: none; /* Remove border for iOS dock */
             }
 
             .dock-item {
@@ -485,9 +534,9 @@
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* 柔和阴影 */
                 top: 50%;
                 left: 50%;
-                transform: translate(-50%, -50%);
-                overflow: hidden; /* 确保内容不溢出圆角 */
-                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* iOS 风格的打开动画 */
+                transform: translate(-50%, -50%) scale(0.8); /* Initial scale for bounce-in */
+                opacity: 0;
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out; /* iOS 风格的打开动画 */
                 touch-action: pan-y; /* 允许窗口内容滚动 */
             }
 
@@ -530,7 +579,7 @@
                 position: static; /* 恢复静态定位 */
                 transform: none; /* 移除偏移 */
             }
-            
+
             /* 在移动端模态窗口中添加一个关闭按钮 */
             .modal-window .close-button-mobile {
                 position: absolute;
@@ -550,6 +599,11 @@
                 border-bottom-right-radius: 15px;
                 overflow-y: auto; /* 确保内容可以滚动 */
                 -webkit-overflow-scrolling: touch; /* 启用iOS平滑滚动 */
+            }
+
+            /* Hide context menu on mobile */
+            .context-menu {
+                display: none !important;
             }
         }
     </style>
@@ -580,23 +634,27 @@
         <span class="time" id="ios-current-time"></span>
         <div class="icons">
             <i class="fas fa-wifi"></i>
+
             <i class="fas fa-battery-full"></i>
         </div>
     </div>
 
-    <div class="desktop">
-        <div class="desktop-icon" id="about-me-icon">
+    <div class="desktop" id="desktop">
+        <div class="desktop-icon" id="about-me-icon" data-modal-target="about-me-modal">
             <i class="fa-solid fa-user-circle"></i> <span>关于我</span>
         </div>
-        <div class="desktop-icon" id="portfolio-icon">
+        <div class="desktop-icon" id="portfolio-icon" data-modal-target="portfolio-modal">
             <i class="fa-solid fa-folder-open"></i> <span>作品集</span>
         </div>
-        <div class="desktop-icon" id="contact-icon">
+        <div class="desktop-icon" id="contact-icon" data-modal-target="contact-modal">
             <i class="fa-solid fa-envelope"></i> <span>联系我</span>
         </div>
+        <div class="desktop-icon" id="change-bg-icon">
+            <i class="fa-solid fa-image"></i> <span>换壁纸</span>
         </div>
+    </div>
 
-    <div class="dock">
+    <div class="dock" id="dock">
         <div class="dock-item" data-target="about-me-modal">
             <i class="fa-solid fa-globe"></i> <span>关于我</span>
         </div>
@@ -616,7 +674,7 @@
                 <i class="fa-solid fa-blog"></i> <span>博客</span>
             </a>
         </div>
-        </div>
+    </div>
 
     <div id="modal-container">
         <div class="modal-window" id="about-me-modal">
@@ -627,9 +685,10 @@
                     <span class="maximize-btn"></span>
                 </div>
                 <span class="window-title">关于我</span>
-                <span class="close-button-mobile" style="display: none;">完成</span> </div>
+                <span class="close-button-mobile" style="display: none;">完成</span>
+            </div>
             <div class="window-content">
-                <h2>👋 你好，我是 [你的名字]！</h2>
+                <h2>👋 你好，我是慕辞！</h2>
                 <p>一位热爱前端开发和用户体验的开发者。</p>
                 <p>我专注于使用现代 Web 技术构建高效、美观、易用的网站和应用。</p>
                 <h3>技能栈：</h3>
@@ -651,7 +710,8 @@
                     <span class="maximize-btn"></span>
                 </div>
                 <span class="window-title">我的作品集</span>
-                <span class="close-button-mobile" style="display: none;">完成</span> </div>
+                <span class="close-button-mobile" style="display: none;">完成</span>
+            </div>
             <div class="window-content">
                 <h3>精选项目：</h3>
                 <div class="project-item">
@@ -678,7 +738,8 @@
                     <span class="maximize-btn"></span>
                 </div>
                 <span class="window-title">联系我</span>
-                <span class="close-button-mobile" style="display: none;">完成</span> </div>
+                <span class="close-button-mobile" style="display: none;">完成</span>
+            </div>
             <div class="window-content">
                 <h3>📬 欢迎联系我！</h3>
                 <p>如果你对我的作品感兴趣，或者有任何合作意向，随时可以通过以下方式联系我：</p>
@@ -695,142 +756,403 @@
 
     <div class="ios-home-indicator" style="display: none;"></div>
 
+    <div class="context-menu" id="desktop-context-menu">
+        <div class="context-menu-item" data-action="new-folder">新建文件夹</div>
+        <div class="context-menu-item" data-action="get-info">显示简介</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="change-wallpaper">更改桌面背景...</div>
+    </div>
+
+    <div class="context-menu" id="icon-context-menu">
+        <div class="context-menu-item" data-action="open-app">打开</div>
+        <div class="context-menu-item" data-action="get-info-app">显示简介</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="delete-app">移到废纸篓</div>
+    </div>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 获取元素
+            const isMobile = window.innerWidth <= 768;
+
+            // --- 获取元素 ---
+            const dock = document.getElementById('dock');
             const dockItems = document.querySelectorAll('.dock-item');
+            const desktop = document.getElementById('desktop');
             const desktopIcons = document.querySelectorAll('.desktop-icon');
             const modalWindows = document.querySelectorAll('.modal-window');
             const closeButtons = document.querySelectorAll('.close-btn');
-            const mobileCloseButtons = document.querySelectorAll('.close-button-mobile'); // 新增移动端关闭按钮
+            const minimizeButtons = document.querySelectorAll('.minimize-btn');
+            const maximizeButtons = document.querySelectorAll('.maximize-btn');
+            const mobileCloseButtons = document.querySelectorAll('.close-button-mobile');
             const windowHeaders = document.querySelectorAll('.window-header');
             const currentTimeSpan = document.getElementById('current-time');
-            const iosCurrentTimeSpan = document.getElementById('ios-current-time'); // iOS 状态栏时间
+            const iosCurrentTimeSpan = document.getElementById('ios-current-time');
+
+            const desktopContextMenu = document.getElementById('desktop-context-menu');
+            const iconContextMenu = document.getElementById('icon-context-menu');
+            let activeContextMenu = null; // Track which context menu is open
 
             // --- 时间显示 ---
             function updateTime() {
                 const now = new Date();
                 const options = { hour: '2-digit', minute: '2-digit', hour12: false };
                 currentTimeSpan.textContent = now.toLocaleTimeString('zh-CN', options);
-                iosCurrentTimeSpan.textContent = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }); // iOS 状态栏显示简短时间
+                iosCurrentTimeSpan.textContent = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
             }
             setInterval(updateTime, 1000);
-            updateTime(); // 立即更新一次
+            updateTime();
 
-            // --- 打开模态窗口 ---
+            // --- 窗口管理 ---
             function openModal(modalId) {
+                // Hide all currently active windows
                 modalWindows.forEach(modal => {
-                    modal.classList.remove('active'); // 关闭所有当前打开的窗口
-                    modal.style.zIndex = 997; // 降低所有窗口的 z-index
+                    if (modal.classList.contains('active')) {
+                        modal.classList.remove('active');
+                        modal.classList.add('hidden'); // Add hidden class after active is removed
+                        modal.style.zIndex = 997;
+                    }
                 });
+
                 const targetModal = document.getElementById(modalId);
                 if (targetModal) {
+                    targetModal.classList.remove('hidden'); // Remove hidden class first
+                    // Force reflow to restart animation
+                    void targetModal.offsetWidth;
                     targetModal.classList.add('active');
-                    targetModal.style.zIndex = 998; // 确保新打开的窗口在最上层
+                    targetModal.style.zIndex = 998;
                 }
             }
 
+            function closeOrMinimizeModal(modal, isMinimize = false) {
+                if (isMinimize) {
+                    modal.classList.add('minimizing');
+                    // After the minimize animation, completely hide it
+                    modal.addEventListener('transitionend', function handler() {
+                        modal.classList.remove('active', 'minimizing');
+                        modal.classList.add('hidden');
+                        modal.removeEventListener('transitionend', handler);
+                    });
+                } else {
+                    modal.classList.remove('active');
+                    modal.addEventListener('transitionend', function handler() {
+                        modal.classList.add('hidden');
+                        modal.removeEventListener('transitionend', handler);
+                    }, { once: true });
+                }
+            }
+
+
+            // --- 事件监听器：打开模态窗口 ---
             dockItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    // 防止点击 Dock 中的链接直接跳转，而是在模态窗口中处理
-                    if (item.querySelector('a') && e.target.tagName === 'I') {
-                        e.preventDefault();
-                        const targetId = item.dataset.target;
-                        if (targetId) {
-                            openModal(targetId);
-                        }
-                    } else if (item.querySelector('a') && (e.target.tagName === 'A' || e.target.tagName === 'SPAN')) {
-                        // 如果点击的是链接或文本，则允许其默认行为（跳转）
+                    if (item.querySelector('a') && e.target.tagName !== 'I') { // Allow direct link clicks
                         return;
-                    } else {
-                        const targetId = item.dataset.target;
-                        if (targetId) {
-                            openModal(targetId);
-                        }
+                    }
+                    e.preventDefault(); // Prevent default link behavior if it's an icon click
+                    const targetId = item.dataset.target;
+                    if (targetId) {
+                        openModal(targetId);
                     }
                 });
             });
 
-
             desktopIcons.forEach(icon => {
                 icon.addEventListener('click', () => {
-                    const targetId = icon.id.replace('-icon', '-modal'); // 根据图标ID推断模态窗口ID
-                    openModal(targetId);
+                    const targetId = icon.dataset.modalTarget;
+                    if (targetId) {
+                        openModal(targetId);
+                    }
                 });
             });
 
-            // --- 关闭模态窗口 ---
+            // --- 事件监听器：关闭/最小化/最大化模态窗口 ---
             closeButtons.forEach(button => {
                 button.addEventListener('click', (e) => {
                     const modal = e.target.closest('.modal-window');
                     if (modal) {
-                        modal.classList.remove('active');
+                        closeOrMinimizeModal(modal);
                     }
                 });
             });
 
-            // 移动端关闭按钮事件监听
+            minimizeButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal-window');
+                    if (modal) {
+                        closeOrMinimizeModal(modal, true);
+                    }
+                });
+            });
+
+            // For now, maximize does the same as close. You can expand this.
+            maximizeButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal-window');
+                    if (modal) {
+                        // Implement full screen or snap to grid logic here
+                        alert('最大化功能待实现！'); // Placeholder
+                    }
+                });
+            });
+
             mobileCloseButtons.forEach(button => {
                 button.addEventListener('click', (e) => {
                     const modal = e.target.closest('.modal-window');
                     if (modal) {
-                        modal.classList.remove('active');
+                        closeOrMinimizeModal(modal);
                     }
                 });
             });
 
-            // --- 模态窗口拖拽 ---
+            // --- 模态窗口拖拽 (macOS only) ---
             windowHeaders.forEach(header => {
                 let isDragging = false;
                 let offsetX, offsetY;
                 const modal = header.closest('.modal-window');
 
-                header.addEventListener('mousedown', (e) => {
-                    // 阻止移动端触摸事件的默认行为，避免滚动
-                    if (window.innerWidth <= 768) {
-                        e.preventDefault();
-                        return; // 移动端标题栏不拖拽
-                    }
-                    isDragging = true;
-                    offsetX = e.clientX - modal.getBoundingClientRect().left;
-                    offsetY = e.clientY - modal.getBoundingClientRect().top;
-                    modal.style.cursor = 'grabbing';
-                    modal.style.transition = 'none'; // 拖拽时取消过渡效果
-                });
+                if (!isMobile) { // Only enable drag for desktop
+                    header.addEventListener('mousedown', (e) => {
+                        isDragging = true;
+                        offsetX = e.clientX - modal.getBoundingClientRect().left;
+                        offsetY = e.clientY - modal.getBoundingClientRect().top;
+                        modal.style.cursor = 'grabbing';
+                        modal.style.transition = 'none'; // Disable transition during drag
+                    });
 
-                document.addEventListener('mousemove', (e) => {
-                    if (!isDragging) return;
-                    modal.style.left = `${e.clientX - offsetX}px`;
-                    modal.style.top = `${e.clientY - offsetY}px`;
-                });
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isDragging) return;
+                        modal.style.left = `${e.clientX - offsetX}px`;
+                        modal.style.top = `${e.clientY - offsetY}px`;
+                    });
 
-                document.addEventListener('mouseup', () => {
-                    isDragging = false;
-                    modal.style.cursor = 'grab';
-                    modal.style.transition = ''; // 恢复过渡效果
-                });
-
-                // 移动端触摸事件处理 (仅在窗口内容允许滚动，标题栏不应拖拽)
-                // 仅在桌面端拖拽生效，移动端取消标题栏拖拽功能
-                if (window.innerWidth <= 768) {
-                    header.style.cursor = 'default';
+                    document.addEventListener('mouseup', () => {
+                        isDragging = false;
+                        modal.style.cursor = 'grab';
+                        modal.style.transition = ''; // Restore transition
+                    });
                 }
             });
-
 
             // --- 窗口激活管理 (点击窗口使其置顶) ---
             modalWindows.forEach(modal => {
                 modal.addEventListener('mousedown', () => {
-                    // 将所有非当前窗口的 z-index 降低
                     modalWindows.forEach(m => {
                         if (m !== modal) {
                             m.style.zIndex = 997;
                         }
                     });
-                    // 提升当前点击的窗口的 z-index
                     modal.style.zIndex = 998;
                 });
             });
+
+            // --- macOS Dock Magnification Effect ---
+            if (!isMobile) {
+                dock.addEventListener('mousemove', (e) => {
+                    const dockRect = dock.getBoundingClientRect();
+                    const mouseX = e.clientX - dockRect.left; // Mouse X relative to dock
+
+                    dockItems.forEach(item => {
+                        const itemRect = item.getBoundingClientRect();
+                        const itemCenterX = (itemRect.left + itemRect.right) / 2 - dockRect.left;
+
+                        // Calculate distance from mouse to item center
+                        let distance = Math.abs(mouseX - itemCenterX);
+
+                        // Define the magnification zone (e.g., 100px around mouse)
+                        const magnificationZone = 120; // Adjust this value
+                        let scale = 1;
+
+                        if (distance < magnificationZone) {
+                            // Map distance to a scale factor (closer = larger)
+                            // Using a cubic bezier for a smoother, more "bouncy" falloff
+                            // f(x) = (1 - x/magnificationZone)^3 + 1
+                            scale = 1 + 0.8 * (1 - distance / magnificationZone); // Max scale 1.8 (adjust as needed)
+                        }
+                        item.style.transform = `scale(${scale})`;
+                    });
+                });
+
+                dock.addEventListener('mouseleave', () => {
+                    dockItems.forEach(item => {
+                        item.style.transform = 'scale(1)'; // Reset all items to normal size
+                    });
+                });
+            }
+
+            // --- Right-Click Context Menu ---
+            function showContextMenu(menu, x, y, targetElement) {
+                hideContextMenu(); // Hide any existing menu
+                activeContextMenu = menu;
+                menu.style.left = `${x}px`;
+                menu.style.top = `${y}px`;
+                menu.style.display = 'block';
+                menu.dataset.targetElementId = targetElement ? targetElement.id : ''; // Store target ID
+
+                // Ensure menu doesn't go off screen
+                const menuRect = menu.getBoundingClientRect();
+                if (menuRect.right > window.innerWidth) {
+                    menu.style.left = `${x - menuRect.width}px`;
+                }
+                if (menuRect.bottom > window.innerHeight) {
+                    menu.style.top = `${y - menuRect.height}px`;
+                }
+            }
+
+            function hideContextMenu() {
+                if (activeContextMenu) {
+                    activeContextMenu.style.display = 'none';
+                    activeContextMenu.removeAttribute('data-target-element-id');
+                    activeContextMenu = null;
+                }
+            }
+
+            // Global click listener to hide context menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (activeContextMenu && !activeContextMenu.contains(e.target)) {
+                    hideContextMenu();
+                }
+            });
+
+            // Desktop right-click
+            desktop.addEventListener('contextmenu', (e) => {
+                e.preventDefault(); // Prevent default browser context menu
+                if (isMobile) return; // Disable for mobile
+                showContextMenu(desktopContextMenu, e.clientX, e.clientY, null);
+            });
+
+            // Desktop icon right-click
+            desktopIcons.forEach(icon => {
+                icon.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    if (isMobile) return;
+                    showContextMenu(iconContextMenu, e.clientX, e.clientY, icon);
+                });
+            });
+
+            // Handle context menu actions
+            desktopContextMenu.addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                if (action === 'new-folder') {
+                    alert('新建文件夹功能待实现！');
+                } else if (action === 'get-info') {
+                    alert('显示简介功能待实现！');
+                } else if (action === 'change-wallpaper') {
+                    changeDesktopBackground();
+                }
+                hideContextMenu();
+            });
+
+            iconContextMenu.addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                const targetIconId = iconContextMenu.dataset.targetElementId;
+                const targetIcon = document.getElementById(targetIconId);
+                const modalTarget = targetIcon ? targetIcon.dataset.modalTarget : null;
+
+                if (action === 'open-app' && modalTarget) {
+                    openModal(modalTarget);
+                } else if (action === 'get-info-app') {
+                    alert(`显示 "${targetIcon.querySelector('span').textContent}" 的简介功能待实现！`);
+                } else if (action === 'delete-app') {
+                    if (confirm(`确定要将 "${targetIcon.querySelector('span').textContent}" 移到废纸篓吗？`)) {
+                        targetIcon.remove(); // Simple removal, no actual trash
+                    }
+                }
+                hideContextMenu();
+            });
+
+            // --- Dynamic Background Change (Placeholder) ---
+            const backgrounds = [
+                'https://4kwallpapers.com/images/walls/thumbs_2t/5893.jpg', // Original macOS
+                'https://images.unsplash.com/photo-1542435503-956c469947f6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80', // Nature
+                'https://images.unsplash.com/photo-1518608821424-69db380a0494?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80', // Abstract
+                'https://images.unsplash.com/photo-1621243831776-b6e828d5d3b6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80' // Dark abstract
+            ];
+            let currentBackgroundIndex = 0;
+
+            function changeDesktopBackground() {
+                currentBackgroundIndex = (currentBackgroundIndex + 1) % backgrounds.length;
+                document.body.style.backgroundImage = `url('${backgrounds[currentBackgroundIndex]}')`;
+                // Add a subtle transition for background change if desired
+                document.body.style.transition = 'background-image 0.5s ease-in-out';
+            }
+
+            // Bind change wallpaper icon click
+            const changeBgIcon = document.getElementById('change-bg-icon');
+            if (changeBgIcon) {
+                changeBgIcon.addEventListener('click', changeDesktopBackground);
+            }
+
+            // --- iOS Desktop Icon Dragging (Basic) ---
+            if (isMobile) {
+                let activeDragIcon = null;
+                let initialX, initialY;
+                let currentX, currentY;
+                let xOffset = 0, yOffset = 0;
+
+                desktopIcons.forEach(icon => {
+                    icon.addEventListener('touchstart', (e) => {
+                        activeDragIcon = icon;
+                        icon.classList.add('dragging'); // Visual feedback for dragging
+                        initialX = e.touches[0].clientX - xOffset;
+                        initialY = e.touches[0].clientY - yOffset;
+                        // Bring to front while dragging
+                        icon.style.zIndex = 10;
+                        // Prevent scrolling while dragging
+                        document.body.style.overflow = 'hidden';
+                    });
+
+                    icon.addEventListener('touchmove', (e) => {
+                        if (activeDragIcon) {
+                            e.preventDefault(); // Prevent default touch behavior (scrolling, zooming)
+                            currentX = e.touches[0].clientX - initialX;
+                            currentY = e.touches[0].clientY - initialY;
+                            xOffset = currentX;
+                            yOffset = currentY;
+
+                            activeDragIcon.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+                        }
+                    });
+
+                    icon.addEventListener('touchend', () => {
+                        if (activeDragIcon) {
+                            activeDragIcon.classList.remove('dragging');
+                            activeDragIcon.style.zIndex = ''; // Reset z-index
+                            // Reset transform for next drag. For persistent placement, you'd save positions.
+                            activeDragIcon.style.transform = 'translate3d(0, 0, 0)';
+                            activeDragIcon = null;
+                            xOffset = 0;
+                            yOffset = 0;
+                            document.body.style.overflow = ''; // Restore scrolling
+                        }
+                    });
+                });
+            }
+
+            // --- Dock Bounce for Applications when Opened (macOS only) ---
+            if (!isMobile) {
+                const bounce = (item) => {
+                    item.style.animation = 'dockBounce 0.4s ease-in-out';
+                    item.addEventListener('animationend', () => {
+                        item.style.animation = ''; // Remove animation after it ends
+                    }, { once: true });
+                };
+
+                dockItems.forEach(item => {
+                    const targetModalId = item.dataset.target;
+                    if (targetModalId) {
+                        const modal = document.getElementById(targetModalId);
+                        if (modal) {
+                            modal.addEventListener('transitionstart', () => {
+                                // Only bounce if the window is being opened (opacity goes from 0 to 1)
+                                if (!modal.classList.contains('active')) {
+                                     bounce(item);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
         });
     </script>
 </body>
