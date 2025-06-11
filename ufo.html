@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外星人科技：强化系统</title>
+    <style>
+        /* CSS 样式开始 */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --dark-bg: #0a0a1a;
+            --light-text: #e0e0e0;
+            --glitch-color1: #ff00c1;
+            --glitch-color2: #00ffc1;
+            --success-green: #00ff66;
+            --warning-orange: #ffaa00;
+            --error-red: #ff3333;
+            --console-bg: rgba(0, 50, 50, 0.3); /* 深青色半透明 */
+            --console-border: var(--neon-blue);
+            --console-text: var(--neon-blue);
+            --console-input: #9affff;
+        }
+
+        /* 修复整个页面可滚动的问题 */
+        html, body {
+            height: 100%; /* 确保html和body都占满整个视口高度 */
+            margin: 0;
+            padding: 0; /* 移除默认的内边距 */
+            overflow: hidden; /* 阻止整个页面的滚动 */
+            overscroll-behavior: none; /* 防止在移动设备上出现弹性滚动效果 */
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        /* 自定义滚动条样式 */
+        /* WebKit browsers (Chrome, Safari, Edge, Opera) */
+        ::-webkit-scrollbar {
+            width: 10px; /* 滚动条整体宽度 */
+            height: 10px; /* 滚动条整体高度 (for horizontal scrollbar) */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3); /* 滚动条轨道背景 */
+            border-radius: 5px; /* 轨道圆角 */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-blue); /* 滚动条滑块颜色 */
+            border-radius: 5px; /* 滑块圆角 */
+            border: 1px solid rgba(0, 255, 255, 0.5); /* 滑块边框 */
+            box-shadow: 0 0 5px var(--neon-blue); /* 滑块发光效果 */
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-pink); /* 鼠标悬停时滑块颜色 */
+            box-shadow: 0 0 10px var(--neon-pink); /* 鼠标悬停时滑块发光效果 */
+            border: 1px solid rgba(255, 0, 255, 0.7);
+        }
+
+        /* Firefox support (limited styling) */
+        * {
+            scrollbar-color: var(--neon-blue) rgba(0, 0, 0, 0.3); /* thumb track */
+            scrollbar-width: thin; /* auto | thin | none */
+        }
+
+
+        /* 全屏星空背景 */
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2; /* 确保在其他背景层之下 */
+            opacity: 0.7;
+        }
+
+        /* 扫描线效果 */
+        #scan-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                transparent 0,
+                rgba(0, 255, 255, 0.08) 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: -1; /* 在星空之上，内容之下 */
+        }
+
+        /* 屏幕噪声/故障效果 */
+        #screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000; /* 最顶层 */
+            opacity: 0; /* 默认隐藏 */
+            transition: opacity 0.1s ease-out; /* 快速过渡 */
+        }
+
+        #screen-overlay.glitch-noise {
+            animation: screen-noise 0.2s infinite; /* 快速噪声 */
+            opacity: 0.2;
+        }
+
+        @keyframes screen-noise {
+            0% {
+                background-position: 0 0;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYUnN8m4AAAAHHRSTlMA+++++++++++++hL3+mAAAAAVRSTlMAAwYJCw0PEhcZGiMtLzE3OT0+REAARX+oAAAAJklEQVR4Xr3BgQ2AMBADwJgDwz/T0g/E8+5v5j3B+w+G2o22n5p92gAAAABJRU5ErkJggg==');
+            }
+            100% {
+                background-position: 50px 50px;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYUnN8m4AAAAHHRSTlMA+++++++++++++hL3+mAAAAAVRSTlMAAwYJCw0PEhcZGiMtLzE3OT0+REAARX+oAAAAJklEQVR4Xr3BgQ2AMBADwJgDwz/T0g/E8+5v5j3B+w+G2o22n5p92gAAAABJRU5RUjSUrkJggg==');
+            }
+        }
+
+
+        /* 鼠标追踪光点 */
+        .glow-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background-color: var(--neon-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--neon-blue),
+                        0 0 20px var(--neon-blue),
+                        0 0 30px var(--neon-blue),
+                        0 0 40px var(--neon-blue);
+            animation: pulse-glow 2s infinite alternate;
+            z-index: 999;
+        }
+
+        @keyframes pulse-glow {
+            from { opacity: 0.8; transform: scale(1) translate(-50%, -50%); }
+            to { opacity: 0.6; transform: scale(1.2) translate(-50%, -50%); }
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue), inset 0 0 10px var(--neon-blue);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            max-width: 900px;
+            width: 90%;
+            box-sizing: border-box;
+            animation: border-flicker 3s infinite alternate; /* 初始闪烁动画 */
+
+            /* 核心修改：让容器适应高度并允许内部滚动 */
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* 允许在flex容器 (body) 中填充可用空间 */
+            min-height: 0; /* 关键：防止flex item (container) 在内容溢出时无限制增长 */
+            overflow-y: auto; /* 允许 container 自身内容溢出时滚动 */
+            padding-bottom: 20px; /* 防止底部内容被裁切，因为底部有padding和margin */
+        }
+
+        @keyframes border-flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                border-color: var(--neon-blue);
+                box-shadow: 0 0 20px var(--neon-blue), inset 0 0 10px var(--neon-blue);
+            }
+            20%, 24%, 55% {
+                border-color: var(--neon-pink);
+                box-shadow: 0 0 25px var(--neon-pink), inset 0 0 12px var(--neon-pink);
+            }
+        }
+
+        /* 协议激活后的边框颜色 */
+        .container.protocol-active {
+            border-color: var(--success-green);
+            box-shadow: 0 0 20px var(--success-green), inset 0 0 10px var(--success-green);
+            animation: none; /* 停止初始闪烁 */
+        }
+        /* 协议停止后的边框颜色 (短暂显示，然后恢复border-flicker) */
+        .container.protocol-inactive-visual {
+            border-color: var(--error-red);
+            box-shadow: 0 0 20px var(--error-red), inset 0 0 10px var(--error-red);
+            animation: none;
+        }
+        /* 紧急关闭的边框颜色 */
+        .container.emergency-shutdown-visual {
+            border-color: var(--error-red);
+            box-shadow: 0 0 30px var(--error-red), inset 0 0 15px var(--error-red);
+            animation: emergency-flicker 0.2s infinite; /* 紧急闪烁 */
+        }
+
+        @keyframes emergency-flicker {
+            0%, 100% { border-color: var(--error-red); box-shadow: 0 0 30px var(--error-red), inset 0 0 15px var(--error-red); }
+            50% { border-color: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink), inset 0 0 10px var(--neon-pink); }
+        }
+
+
+        .header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+            margin-bottom: 30px;
+            animation: text-flicker 4s infinite alternate;
+            position: relative;
+            padding-bottom: 10px;
+            /* 确保header不会占据过多空间 */
+            flex-shrink: 0;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--neon-blue), transparent);
+            box-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            line-height: 1.8;
+            font-size: 1.1em;
+            position: relative;
+            /* 确保section不会占据过多空间 */
+            flex-shrink: 0;
+        }
+
+        .section.log-section { /* 为日志区域的父级section添加一个类 */
+            flex-grow: 1; /* 允许日志section在container中填充剩余空间 */
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* 关键：防止flex item (section) 无限制增长 */
+        }
+        .section.console-section { /* 为控制台区域的父级section添加一个类 */
+            flex-shrink: 0; /* 控制台不应随着内容变多而伸缩 */
+        }
+
+
+        .section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-pink);
+            text-shadow: 0 0 8px var(--neon-pink);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .data-display {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 10px var(--neon-pink), inset 0 0 5px var(--neon-pink);
+            padding: 20px;
+            border-radius: 5px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            text-align: left;
+            /* 确保data-display不会占据过多空间 */
+            flex-shrink: 0;
+        }
+
+        .data-item {
+            padding: 10px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-item strong {
+            color: var(--neon-blue);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* 系统日志区域 */
+        #system-log-area {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue), inset 0 0 5px var(--neon-blue);
+            padding: 15px;
+            border-radius: 5px;
+            text-align: left;
+            overflow-y: scroll; /* 允许滚动 */
+            font-size: 0.9em;
+            line-height: 1.4;
+            color: var(--light-text);
+            margin-bottom: 30px; /* 与下方按钮保持距离 */
+
+            /* 核心修改：让日志区域自动填充剩余高度 */
+            flex-grow: 1; /* 允许在父级section中填充可用空间 */
+            min-height: 150px; /* 最小高度，确保初始可见性 */
+            max-height: 400px; /* 最大高度，防止日志区域过大挤压其他内容 */
+
+            /* 特定于该区域的滚动条样式，覆盖全局 */
+            &::-webkit-scrollbar {
+                width: 8px; /* 窄一点 */
+            }
+            &::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
+            }
+            &::-webkit-scrollbar-thumb {
+                background: var(--neon-blue);
+                border-radius: 4px;
+                border: 0px; /* 无边框 */
+                box-shadow: 0 0 3px var(--neon-blue);
+            }
+            &::-webkit-scrollbar-thumb:hover {
+                background: var(--neon-pink);
+                box-shadow: 0 0 7px var(--neon-pink);
+            }
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        .log-timestamp {
+            color: rgba(255, 255, 255, 0.5);
+            margin-right: 8px;
+        }
+        .log-level-info { color: var(--light-text); }
+        .log-level-warn { color: var(--warning-orange); }
+        .log-level-error { color: var(--error-red); }
+        .log-level-success { color: var(--success-green); }
+        .log-level-command { color: var(--console-input); } /* 新增命令输入日志颜色 */
+
+
+        /* 按钮风格 - 使用 CSS Grid */
+        .controls {
+            margin-top: 30px;
+            display: grid; /* 启用 Grid 布局 */
+            /* 自动创建列，每列最小 150px，最大 1fr (填充剩余空间) */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px; /* 按钮之间的间距，同时控制行和列 */
+            flex-shrink: 0; /* 确保在container中不会被挤压 */
+            justify-content: center; /* 按钮在 grid 内部水平居中 (当列数不足时) */
+            align-items: flex-start; /* 按钮在 grid 内部垂直顶部对齐 */
+        }
+
+        .control-button {
+            background-color: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 12px 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 5px var(--neon-blue);
+            width: 100%; /* 确保按钮填充其网格单元格 */
+            box-sizing: border-box; /* 包含 padding 和 border 在 width 内 */
+            white-space: nowrap; /* 防止按钮文本换行，除非设置 minmax 缩小 */
+            overflow: hidden; /* 隐藏超出部分，如果文本过长 */
+            text-overflow: ellipsis; /* 文本超出时显示省略号 */
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background-color: var(--neon-blue);
+            opacity: 0.2;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover::before {
+            left: 0;
+        }
+
+        .control-button:hover:not(:disabled) {
+            color: var(--dark-bg);
+            background-color: var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue), 0 0 25px var(--neon-blue);
+            text-shadow: none;
+        }
+
+        /* 禁用按钮样式 */
+        .control-button:disabled {
+            border-color: rgba(0, 255, 255, 0.3);
+            color: rgba(0, 255, 255, 0.3);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .control-button:disabled::before {
+            background-color: transparent;
+        }
+
+        /* 协议激活/停止按钮特定样式 */
+        #start-protocol-btn.active {
+            border-color: var(--success-green);
+            color: var(--success-green);
+            box-shadow: 0 0 10px var(--success-green);
+        }
+        #stop-protocol-btn.active {
+            border-color: var(--error-red);
+            color: var(--error-red);
+            box-shadow: 0 0 10px var(--error-red);
+        }
+        /* 紧急关闭按钮特殊样式 */
+        #emergency-shutdown-btn {
+            border-color: var(--error-red);
+            color: var(--error-red);
+            box-shadow: 0 0 5px var(--error-red);
+        }
+        #emergency-shutdown-btn:hover:not(:disabled) {
+            color: var(--dark-bg);
+            background-color: var(--error-red);
+            box-shadow: 0 0 15px var(--error-red), 0 0 25px var(--error-red);
+        }
+
+        /* 故障艺术效果（可选） */
+        .glitch {
+            position: relative;
+            animation: glitch-effect 5s infinite linear alternate;
+        }
+
+        @keyframes glitch-effect {
+            0% { transform: translate(0); text-shadow: none; }
+            2% { transform: translate(-2px, 2px); text-shadow: 2px -2px var(--glitch-color1), -2px 2px var(--glitch-color2); }
+            4% { transform: translate(2px, -2px); text-shadow: -2px 2px var(--glitch-color1), 2px -2px var(--glitch-color2); }
+            6% { transform: translate(0); text-shadow: none; }
+            8% { transform: translate(-1px, 1px); text-shadow: 1px -1px var(--glitch-color1); }
+            10% { transform: translate(1px, -1px); text-shadow: -1px 1px var(--glitch-color2); }
+            12% { transform: translate(0); text-shadow: none; }
+            100% { transform: translate(0); text-shadow: none; }
+        }
+
+        /* 协议状态和进度条 */
+        #protocol-status-area {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            color: var(--light-text);
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        #protocol-status-message {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
+            margin-bottom: 15px;
+            min-height: 1.5em;
+        }
+
+        #protocol-progress-bar {
+            width: 0%;
+            height: 10px;
+            background-color: var(--success-green);
+            box-shadow: 0 0 10px var(--success-green);
+            border-radius: 5px;
+            transition: width 0.5s ease-out, opacity 0.5s ease-out;
+            margin: 0 auto;
+            max-width: 600px;
+            opacity: 0;
+        }
+        #protocol-progress-bar.show {
+            opacity: 1;
+        }
+        /* 错误状态的进度条 */
+        #protocol-progress-bar.error {
+            background-color: var(--error-red);
+            box-shadow: 0 0 10px var(--error-red);
+        }
+
+        /* 激活后的系统状态显示 */
+        #system-runtime-area {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            font-family: 'Orbitron', sans-serif;
+            color: var(--success-green);
+            text-shadow: 0 0 5px var(--success-green);
+            font-size: 1.2em;
+            text-align: left;
+            flex-shrink: 0;
+        }
+        #system-runtime-area p {
+            margin-bottom: 5px;
+            text-shadow: none;
+            color: var(--light-text);
+            font-size: 0.9em;
+        }
+        #system-runtime-area span {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+            font-size: 1.1em;
+        }
+
+        /* 交互式控制台样式 */
+        #console-output {
+            background-color: var(--console-bg);
+            border: 1px solid var(--console-border);
+            box-shadow: 0 0 8px var(--console-border), inset 0 0 4px var(--console-border);
+            padding: 15px;
+            border-radius: 5px;
+            text-align: left;
+            overflow-y: scroll;
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: var(--console-text);
+            height: 200px; /* 固定高度 */
+            margin-bottom: 10px;
+            white-space: pre-wrap; /* 保持换行和空格 */
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        #console-input-area {
+            display: flex;
+            align-items: center;
+        }
+
+        #console-input-prompt {
+            color: var(--console-input);
+            font-family: 'Share Tech Mono', monospace;
+            margin-right: 5px;
+            font-size: 1em;
+        }
+
+        #console-input {
+            flex-grow: 1;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--console-input);
+            box-shadow: 0 0 5px var(--console-input);
+            color: var(--console-input);
+            font-family: 'Share Tech Mono', monospace;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 1em;
+            outline: none;
+            transition: box-shadow 0.2s ease;
+        }
+        #console-input:focus {
+            box-shadow: 0 0 10px var(--console-input), inset 0 0 5px var(--console-input);
+        }
+
+        /* 背景音乐按钮 */
+        #music-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+        #music-toggle-btn .icon {
+            font-size: 1.5em;
+            color: var(--neon-blue);
+            transition: color 0.3s ease;
+        }
+        #music-toggle-btn.active {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+        #music-toggle-btn.active .icon {
+            color: var(--neon-pink);
+        }
+        #music-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                padding-bottom: 10px; /* 减小底部填充，为内容腾出空间 */
+            }
+            .header {
+                font-size: 1.8em;
+            }
+            .section {
+                font-size: 1em;
+            }
+            .section h2 {
+                font-size: 1.2em;
+            }
+            /* 响应式设计中的按钮调整 */
+            .controls {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
+            }
+            .control-button {
+                font-size: 0.9em; /* 适当减小字体大小 */
+                padding: 10px 15px; /* 调整内边距 */
+            }
+            .data-display {
+                grid-template-columns: 1fr; /* 小屏幕数据单列显示 */
+            }
+            #console-output {
+                height: 150px; /* 调整控制台高度 */
+            }
+            #music-toggle-btn {
+                width: 40px;
+                height: 40px;
+                bottom: 10px;
+                right: 10px;
+            }
+            #music-toggle-btn .icon {
+                font-size: 1.2em;
+            }
+        }
+        @media (max-width: 480px) {
+            .controls {
+                /* 在极小屏幕上可能希望每行只有一个按钮 */
+                grid-template-columns: 1fr;
+            }
+        }
+        /* CSS 样式结束 */
+    </style>
+</head>
+<body>
+    <canvas id="star-canvas"></canvas>
+    <div id="scan-lines"></div>
+    <div id="screen-overlay"></div> <div class="glow-cursor"></div>
+
+    <div class="container" id="main-container">
+        <h1 class="header glitch" id="main-header">星际协议数据中心</h1>
+
+        <div class="section">
+            <h2><span class="glitch">访问日志</span></h2>
+            <p id="decoded-text">数据传输中...</p>
+        </div>
+
+        <div class="section">
+            <h2><span class="glitch">系统状态</span></h2>
+            <div class="data-display">
+                <div class="data-item"><strong>核心温度:</strong> <span id="core-temp" class="data-value">25.7°C</span></div>
+                <div class="data-item"><strong>能量输出:</strong> <span id="energy-output" class="data-value">98.2%</span></div>
+                <div class="data-item"><strong>网络延迟:</strong> <span id="network-latency" class="data-value">3.2ms</span></div>
+                <div class="data-item"><strong>CPU负载:</strong> <span id="cpu-load" class="data-value">12%</span></div>
+                <div class="data-item"><strong>内存使用:</strong> <span id="memory-usage" class="data-value">4.5GB / 16GB</span></div>
+                <div class="data-item"><strong>存储空间:</strong> <span id="storage-space" class="data-value">85%</span></div>
+                <div class="data-item"><strong>威胁状态:</strong> <span id="threat-status" class="data-value">无</span></div>
+                <div class="data-item"><strong>系统运行时间:</strong> <span id="system-uptime" class="data-value">0天0时0分</span></div>
+            </div>
+        </div>
+
+        <div class="section log-section">
+            <h2><span class="glitch">系统日志</span></h2>
+            <div id="system-log-area">
+                </div>
+        </div>
+
+        <div class="section console-section">
+            <h2><span class="glitch">交互式控制台</span></h2>
+            <div id="console-output">
+                欢迎来到星际协议控制台。输入'help'获取命令列表。<br>
+                等待指令...<br>
+            </div>
+            <div id="console-input-area">
+                <span id="console-input-prompt">[PROT_SYS]$</span>
+                <input type="text" id="console-input" autofocus autocomplete="off">
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-button" id="start-protocol-btn">启动协议</button>
+            <button class="control-button" id="stop-protocol-btn" disabled>停止协议</button>
+            <button class="control-button" id="sync-data-btn" disabled>数据同步</button>
+            <button class="control-button" id="upload-data-btn" disabled>上传数据</button> <button class="control-button" id="reset-system-btn">重置系统</button>
+            <button class="control-button" id="emergency-shutdown-btn">紧急关闭</button>
+        </div>
+
+        <div id="protocol-status-area">
+            <p id="protocol-status-message"></p>
+            <div id="protocol-progress-bar"></div>
+        </div>
+
+        <div id="system-runtime-area" style="display: none;">
+            <p>协议运行时间:</p>
+            <span id="protocol-runtime">00:00:00</span>
+            <p>当前星际标准时:</p>
+            <span id="galactic-time"></span>
+        </div>
+    </div>
+
+    <div id="music-toggle-btn">
+        <span class="icon">♪</span>
+    </div>
+
+    <audio id="click-sound" src="https://www.soundjay.com/buttons/beep-07a.mp3" preload="auto"></audio>
+    <audio id="alarm-sound" src="https://www.soundjay.com/misc/alarms/alarm-sound-1.mp3" preload="auto"></audio>
+    <audio id="background-music" src="https://www.soundjay.com/ambient/ambient-sound-5.mp3" loop preload="auto"></audio> <script>
+        /* JavaScript 逻辑开始 */
+        // --- 全局引用和状态变量 ---
+        const initialLogText = "加密数据传输成功。未知信号源已识别。协议版本：Gamma-7。建立通信链路中...";
+        const decodedTextElement = document.getElementById('decoded-text');
+        let currentIndex = 0;
+        let scrambleInterval;
+
+        const glowCursor = document.querySelector('.glow-cursor');
+
+        const starCanvas = document.getElementById('star-canvas');
+        const starCtx = starCanvas.getContext('2d');
+        let stars = [];
+        const numStars = 500;
+
+        // 更新数据项的引用，以便包含新添加的
+        const dataElements = {
+            coreTemp: document.getElementById('core-temp'),
+            energyOutput: document.getElementById('energy-output'),
+            networkLatency: document.getElementById('network-latency'),
+            cpuLoad: document.getElementById('cpu-load'),
+            memoryUsage: document.getElementById('memory-usage'),
+            storageSpace: document.getElementById('storage-space'),
+            threatStatus: document.getElementById('threat-status'),
+            systemUptime: document.getElementById('system-uptime')
+        };
+        const originalDataValues = {
+            coreTemp: '25.7°C',
+            energyOutput: '98.2%',
+            networkLatency: '3.2ms',
+            cpuLoad: '12%',
+            memoryUsage: '4.5GB / 16GB',
+            storageSpace: '85%',
+            threatStatus: '无',
+            systemUptime: '0天0时0分'
+        };
+
+        let dataUpdateInterval;
+        let systemUptimeSeconds = 0;
+
+        const startProtocolBtn = document.getElementById('start-protocol-btn');
+        const stopProtocolBtn = document.getElementById('stop-protocol-btn');
+        const syncDataBtn = document.getElementById('sync-data-btn');
+        const uploadDataBtn = document.getElementById('upload-data-btn'); // 新增上传数据按钮
+        const resetSystemBtn = document.getElementById('reset-system-btn');
+        const emergencyShutdownBtn = document.getElementById('emergency-shutdown-btn');
+
+        const mainHeader = document.getElementById('main-header');
+        const mainContainer = document.getElementById('main-container');
+        const protocolStatusMessage = document.getElementById('protocol-status-message');
+        const protocolProgressBar = document.getElementById('protocol-progress-bar');
+
+        const systemRuntimeArea = document.getElementById('system-runtime-area');
+        const protocolRuntimeDisplay = document.getElementById('protocol-runtime');
+        const galacticTimeDisplay = document.getElementById('galactic-time');
+        let protocolStartTime = null;
+        let runtimeUpdateInterval;
+        let isProtocolActive = false;
+        let isSystemResetting = false;
+
+        const systemLogArea = document.getElementById('system-log-area');
+        const screenOverlay = document.getElementById('screen-overlay');
+
+        const clickSound = document.getElementById('click-sound');
+        const alarmSound = document.getElementById('alarm-sound');
+        const backgroundMusic = document.getElementById('background-music'); // 背景音乐
+        const musicToggleButton = document.getElementById('music-toggle-btn');
+
+        // 控制台元素
+        const consoleOutput = document.getElementById('console-output');
+        const consoleInput = document.getElementById('console-input');
+        const consoleInputPrompt = document.getElementById('console-input-prompt');
+        let consoleHistory = [];
+        let consoleHistoryIndex = -1;
+
+        // --- 辅助函数：播放音效 ---
+        function playSound(audioElement, volume = 0.5) {
+            audioElement.currentTime = 0; // 重置到开头，以便可以快速重复播放
+            audioElement.volume = volume;
+            audioElement.play().catch(e => console.log("Audio play failed:", e)); // 捕获播放错误
+        }
+
+        // --- 辅助函数：写入系统日志 ---
+        function writeLog(message, level = 'info') {
+            const now = new Date();
+            const timestamp = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            const logEntry = document.createElement('div');
+            logEntry.classList.add('log-entry');
+            logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> <span class="log-level-${level}">${message}</span>`;
+            systemLogArea.appendChild(logEntry);
+            systemLogArea.scrollTop = systemLogArea.scrollHeight; // 自动滚动到底部
+            console.log(`[SYS LOG - ${level.toUpperCase()}] ${message}`); // 同时输出到浏览器控制台
+        }
+
+        // --- 辅助函数：写入控制台输出 ---
+        function writeConsole(message, type = 'output') { // type: 'output', 'error', 'success', 'command'
+            const line = document.createElement('div');
+            if (type === 'command') {
+                line.innerHTML = `<span style="color: var(--console-input);">${consoleInputPrompt.textContent} ${message}</span>`;
+            } else if (type === 'error') {
+                line.innerHTML = `<span style="color: var(--error-red);">错误: ${message}</span>`;
+            } else if (type === 'success') {
+                line.innerHTML = `<span style="color: var(--success-green);">${message}</span>`;
+            } else {
+                line.textContent = message;
+            }
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // --- 1. 文本解码效果 ---
+        function startDecodingAnimation(textToDecode = initialLogText, callback = null) {
+            writeLog(`Initiating text decode for: "${textToDecode.substring(0, Math.min(textToDecode.length, 30))}..."`, 'info');
+            currentIndex = 0;
+            clearInterval(scrambleInterval);
+            let displayInterval;
+
+            scrambleInterval = setInterval(() => {
+                let scrambled = '';
+                for (let i = 0; i < textToDecode.length; i++) {
+                    if (i < currentIndex) {
+                        scrambled += textToDecode[i];
+                    } else {
+                        scrambled += String.fromCharCode(33 + Math.floor(Math.random() * 94));
+                    }
+                }
+                decodedTextElement.textContent = scrambled;
+            }, 50);
+
+            displayInterval = setInterval(() => {
+                currentIndex++;
+                if (currentIndex > textToDecode.length) {
+                    clearInterval(displayInterval);
+                    clearInterval(scrambleInterval);
+                    decodedTextElement.textContent = textToDecode;
+                    if (callback) callback();
+                    writeLog('Text decode complete.', 'success');
+                }
+            }, 50);
+        }
+
+        // --- 2. 鼠标追踪光标 ---
+        document.addEventListener('mousemove', (e) => {
+            glowCursor.style.left = `${e.clientX}px`;
+            glowCursor.style.top = `${e.clientY}px`;
+        });
+
+        // --- 3. 星空背景 & 扫描线 ---
+        function resizeStarCanvas() {
+            starCanvas.width = window.innerWidth;
+            starCanvas.height = window.innerHeight;
+            stars = [];
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * starCanvas.width,
+                    y: Math.random() * starCanvas.height,
+                    radius: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random() * 0.5 + 0.5,
+                    speed: Math.random() * 0.1 + 0.05
+                });
+            }
+        }
+
+        function animateStars() {
+            starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+            stars.forEach(star => {
+                starCtx.beginPath();
+                starCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                starCtx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                starCtx.fill();
+
+                star.alpha += star.speed * (star.alpha > 0.9 || star.alpha < 0.5 ? -1 : 1);
+                if (star.alpha > 1) star.alpha = 1;
+                if (star.alpha < 0) star.alpha = 0;
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        // --- 4. 数据更新模拟 ---
+        function startDataSimulation() {
+            writeLog("Starting data simulation...", 'info');
+            clearInterval(dataUpdateInterval);
+            dataUpdateInterval = setInterval(() => {
+                let coreTemp = (isProtocolActive ? 30 + Math.random() * 8 : 25 + Math.random() * 5).toFixed(1);
+                let energyOutput = (isProtocolActive ? 99.0 + Math.random() * 1.0 : 95 + Math.random() * 5).toFixed(1);
+                let networkLatency = (isProtocolActive ? 1 + Math.random() * 2 : 3 + Math.random() * 3).toFixed(1);
+                let cpuLoad = (isProtocolActive ? 40 + Math.random() * 30 : 10 + Math.random() * 15).toFixed(0);
+                let memoryUsageGB = (isProtocolActive ? 8 + Math.random() * 6 : 4 + Math.random() * 3).toFixed(1);
+                let totalMemoryGB = 16;
+                let storageUsed = (isProtocolActive ? 85 + Math.random() * 5 : 80 + Math.random() * 5).toFixed(0);
+                let threatStatus = '无';
+
+                let tempColor = 'var(--light-text)';
+                if (parseFloat(coreTemp) > 35) tempColor = 'var(--warning-orange)';
+                if (parseFloat(coreTemp) > 38 && isProtocolActive) writeLog(`WARN: Core temp elevated to ${coreTemp}°C!`, 'warn');
+
+                let energyColor = 'var(--light-text)';
+                if (parseFloat(energyOutput) < 97) energyColor = 'var(--warning-orange)';
+
+                let latencyColor = 'var(--light-text)';
+                if (parseFloat(networkLatency) > 3) latencyColor = 'var(--warning-orange)';
+
+                let cpuColor = 'var(--light-text)';
+                if (parseFloat(cpuLoad) > 70) cpuColor = 'var(--error-red)';
+                else if (parseFloat(cpuLoad) > 50) cpuColor = 'var(--warning-orange)';
+
+                let storageColor = 'var(--light-text)';
+                if (parseFloat(storageUsed) > 90) storageColor = 'var(--warning-orange)';
+
+                let threatColor = 'var(--light-text)';
+                const warningChance = isProtocolActive ? 0.03 : 0.01;
+                if (Math.random() < warningChance) {
+                    threatStatus = '⚠️检测到异常信号';
+                    threatColor = 'var(--neon-pink)';
+                    writeLog('CRITICAL: System integrity warning detected! Threat level elevated!', 'error');
+                } else if (Math.random() < 0.01) { // 偶尔出现更严重警告
+                    threatStatus = '🚨未知入侵尝试';
+                    threatColor = 'var(--error-red)';
+                    writeLog('ALERT: Unknown intrusion attempt detected. Countermeasures activated.', 'error');
+                }
+
+
+                dataElements.coreTemp.textContent = `${coreTemp}°C`;
+                dataElements.coreTemp.style.color = tempColor;
+
+                dataElements.energyOutput.textContent = `${energyOutput}%`;
+                dataElements.energyOutput.style.color = energyColor;
+
+                dataElements.networkLatency.textContent = `${networkLatency}ms`;
+                dataElements.networkLatency.style.color = latencyColor;
+
+                dataElements.cpuLoad.textContent = `${cpuLoad}%`;
+                dataElements.cpuLoad.style.color = cpuColor;
+
+                dataElements.memoryUsage.textContent = `${memoryUsageGB}GB / ${totalMemoryGB}GB`;
+                dataElements.memoryUsage.style.color = 'var(--light-text)';
+
+                dataElements.storageSpace.textContent = `${storageUsed}%`;
+                dataElements.storageSpace.style.color = storageColor;
+
+                dataElements.threatStatus.textContent = threatStatus;
+                dataElements.threatStatus.style.color = threatColor;
+
+                // 更新系统运行时间
+                systemUptimeSeconds++;
+                const days = Math.floor(systemUptimeSeconds / (3600 * 24));
+                const hours = Math.floor((systemUptimeSeconds % (3600 * 24)) / 3600);
+                const minutes = Math.floor((systemUptimeSeconds % 3600) / 60);
+                dataElements.systemUptime.textContent = `${days}天${hours}时${minutes}分`;
+
+
+            }, 1000);
+        }
+
+        function stopDataSimulation() {
+            writeLog("Stopping data simulation...", 'info');
+            clearInterval(dataUpdateInterval);
+            for (const key in dataElements) {
+                dataElements[key].textContent = originalDataValues[key];
+                dataElements[key].style.color = 'var(--light-text)';
+            }
+            systemUptimeSeconds = 0; // 重置运行时间
+        }
+
+
+        // --- 5. 协议启动逻辑 (增强版) ---
+        startProtocolBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            if (isProtocolActive || startProtocolBtn.disabled) return;
+
+            writeLog("Attempting to start protocol...", 'info');
+            // 禁用所有按钮
+            const allButtons = document.querySelectorAll('.control-button');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            startProtocolBtn.textContent = '协议启动中...';
+            startProtocolBtn.style.boxShadow = 'none';
+
+            mainHeader.classList.add('glitch-active');
+            setTimeout(() => {
+                mainHeader.classList.remove('glitch-active');
+            }, 500);
+
+            protocolStatusMessage.textContent = '初始化系统模块...';
+            protocolStatusMessage.style.color = 'var(--neon-blue)';
+            protocolProgressBar.style.width = '0%';
+            protocolProgressBar.classList.remove('error');
+            protocolProgressBar.classList.add('show');
+            protocolProgressBar.style.boxShadow = '0 0 5px var(--neon-blue)';
+
+            let progress = 0;
+            const launchPhases = [
+                { message: '初始化系统模块...', duration: 500, log: 'Initializing core modules...' },
+                { message: '加载子程序...', duration: 700, log: 'Loading auxiliary subroutines...' },
+                { message: '建立量子链路...', duration: 1000, log: 'Establishing quantum entanglement link...' },
+                { message: '激活核心功能...', duration: 800, log: 'Activating primary protocols...' },
+                { message: '校验系统完整性...', duration: 700, log: 'Verifying system integrity...' },
+                { message: '准备数据传输...', duration: 500, log: 'Preparing for data transmission...' }
+            ];
+            let currentPhaseIndex = 0;
+            let totalDuration = launchPhases.reduce((sum, phase) => sum + phase.duration, 0);
+            let elapsedDuration = 0;
+
+            const launchStep = () => {
+                if (currentPhaseIndex < launchPhases.length) {
+                    const phase = launchPhases[currentPhaseIndex];
+                    protocolStatusMessage.textContent = phase.message;
+                    writeLog(phase.log, 'info');
+
+                    const interval = setInterval(() => {
+                        elapsedDuration += 50;
+                        progress = (elapsedDuration / totalDuration) * 100;
+                        if (progress > 100) progress = 100;
+                        protocolProgressBar.style.width = `${progress}%`;
+                        protocolProgressBar.style.boxShadow = `0 0 ${5 + (progress / 10)}px var(--neon-blue)`; // 进度条发光
+                        if (elapsedDuration >= totalDuration) {
+                            clearInterval(interval);
+                        }
+                    }, 50);
+
+                    setTimeout(() => {
+                        clearInterval(interval); // 确保当前阶段的interval被清除
+                        currentPhaseIndex++;
+                        launchStep();
+                    }, phase.duration);
+                } else {
+                    // All phases complete
+                    isProtocolActive = true;
+                    protocolStatusMessage.textContent = '协议已激活。系统稳定。';
+                    protocolStatusMessage.style.color = 'var(--success-green)';
+                    protocolProgressBar.style.width = '100%';
+                    protocolProgressBar.style.boxShadow = '0 0 15px var(--success-green)';
+
+                    startProtocolBtn.textContent = '协议已激活';
+                    startProtocolBtn.classList.add('active');
+                    stopProtocolBtn.disabled = false;
+                    syncDataBtn.disabled = false;
+                    uploadDataBtn.disabled = false; // 启用上传数据按钮
+                    resetSystemBtn.disabled = false;
+                    emergencyShutdownBtn.disabled = false;
+
+                    mainContainer.classList.remove('protocol-inactive-visual', 'emergency-shutdown-visual');
+                    mainContainer.classList.add('protocol-active');
+                    mainContainer.style.animation = 'none';
+
+                    startDecodingAnimation("协议激活完毕。链路已建立。等待下一指令。", () => {
+                         protocolStartTime = Date.now();
+                         systemRuntimeArea.style.display = 'block';
+                         updateProtocolRuntime();
+                         runtimeUpdateInterval = setInterval(updateProtocolRuntime, 1000);
+                         writeLog("Protocol activated successfully. System online.", 'success');
+                         writeConsole("系统已激活。协议版本：Gamma-7。");
+                    });
+                    startDataSimulation();
+                }
+            };
+            launchStep(); // Start the first phase
+        });
+
+        // --- 6. 协议停止逻辑 ---
+        stopProtocolBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            if (!isProtocolActive || stopProtocolBtn.disabled) return;
+
+            writeLog("Attempting to stop protocol...", 'warn');
+            // 禁用所有按钮
+            const allButtons = document.querySelectorAll('.control-button');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            stopProtocolBtn.textContent = '协议停止中...';
+            stopProtocolBtn.style.boxShadow = 'none';
+
+            clearInterval(runtimeUpdateInterval);
+            protocolRuntimeDisplay.textContent = '---';
+            galacticTimeDisplay.textContent = '---';
+
+            protocolStatusMessage.textContent = '正在关闭核心模块...';
+            protocolStatusMessage.style.color = 'var(--error-red)';
+            protocolProgressBar.style.width = '0%';
+            protocolProgressBar.classList.add('show', 'error');
+            protocolProgressBar.style.boxShadow = '0 0 5px var(--error-red)';
+
+
+            let progress = 0;
+            const stopInterval = setInterval(() => {
+                progress += 10;
+                protocolProgressBar.style.width = `${progress}%`;
+                protocolProgressBar.style.boxShadow = `0 0 ${5 + (progress / 10)}px var(--error-red)`;
+
+                if (progress <= 30) {
+                    protocolStatusMessage.textContent = '正在关闭核心模块...';
+                } else if (progress <= 60) {
+                    protocolStatusMessage.textContent = '解除链路连接...';
+                } else if (progress < 100) {
+                    protocolStatusMessage.textContent = '系统脱离待命状态...';
+                } else {
+                    clearInterval(stopInterval);
+                    isProtocolActive = false;
+                    protocolStartTime = null;
+                    protocolStatusMessage.textContent = '协议已停止。系统休眠。';
+                    protocolStatusMessage.style.color = 'var(--error-red)';
+                    protocolProgressBar.style.width = '100%';
+                    protocolProgressBar.style.boxShadow = '0 0 15px var(--error-red)';
+
+                    startProtocolBtn.textContent = '启动协议';
+                    startProtocolBtn.classList.remove('active');
+                    startProtocolBtn.disabled = false;
+                    stopProtocolBtn.textContent = '协议已停止';
+                    stopProtocolBtn.classList.add('active'); // 暂时保持红色，然后重置
+                    stopProtocolBtn.disabled = true;
+                    syncDataBtn.disabled = true;
+                    uploadDataBtn.disabled = true; // 停止后上传数据按钮禁用
+                    resetSystemBtn.disabled = false; // 停止后重置按钮可用
+                    emergencyShutdownBtn.disabled = false; // 紧急关闭按钮可用
+
+                    mainContainer.classList.remove('protocol-active', 'emergency-shutdown-visual');
+                    mainContainer.classList.add('protocol-inactive-visual');
+                    mainContainer.style.animation = 'none';
+
+                    systemRuntimeArea.style.display = 'none';
+
+                    startDecodingAnimation("协议已安全终止。系统进入低功耗模式。", () => {
+                        writeLog("Protocol stopped successfully. System is now in low power mode.", 'success');
+                        writeConsole("系统已停止。进入低功耗模式。");
+                    });
+                    stopDataSimulation();
+
+                    setTimeout(() => {
+                        protocolProgressBar.style.width = '0%';
+                        protocolProgressBar.classList.remove('show', 'error');
+                        protocolProgressBar.style.boxShadow = 'none';
+                        protocolStatusMessage.textContent = '';
+
+                        mainContainer.classList.remove('protocol-inactive-visual');
+                        mainContainer.style.animation = 'border-flicker 3s infinite alternate';
+                        stopProtocolBtn.classList.remove('active');
+                    }, 1500);
+                }
+            }, 300);
+        });
+
+        // --- 7. 数据同步逻辑 ---
+        syncDataBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            if (syncDataBtn.disabled) return;
+
+            writeLog("Initiating data synchronization...", 'info');
+            syncDataBtn.disabled = true;
+            syncDataBtn.textContent = '同步中...';
+            syncDataBtn.style.boxShadow = '0 0 10px var(--warning-orange)';
+
+            startDecodingAnimation("正在请求远程数据流。校验校验和... 数据包接收中...", () => {
+                protocolStatusMessage.textContent = '数据同步完成。缓存已更新。';
+                protocolStatusMessage.style.color = 'var(--success-green)';
+                protocolProgressBar.style.width = '100%';
+                protocolProgressBar.classList.remove('error');
+                protocolProgressBar.classList.add('show');
+                protocolProgressBar.style.boxShadow = '0 0 10px var(--success-green)';
+                writeConsole("数据同步完成。");
+
+                setTimeout(() => {
+                    protocolProgressBar.style.width = '0%';
+                    protocolProgressBar.classList.remove('show');
+                    protocolProgressBar.style.boxShadow = 'none';
+                    protocolStatusMessage.textContent = '';
+                    writeLog("Data synchronization complete. Cache updated.", 'success');
+                }, 1500);
+
+                syncDataBtn.textContent = '数据同步';
+                syncDataBtn.disabled = false;
+                syncDataBtn.style.boxShadow = '0 0 5px var(--neon-blue)';
+            });
+
+            const syncDataInterval = setInterval(() => {
+                dataElements.networkLatency.textContent = `${(Math.random() * 5 + 0.5).toFixed(1)}ms`;
+                dataElements.cpuLoad.textContent = `${(Math.random() * 10 + 20).toFixed(0)}%`;
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(syncDataInterval);
+                startDataSimulation(); // 恢复正常数据模拟
+            }, 2000);
+        });
+
+        // --- 新增：8. 数据上传逻辑 ---
+        uploadDataBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            if (uploadDataBtn.disabled) return;
+
+            writeLog("Initiating data upload to secure server...", 'info');
+            uploadDataBtn.disabled = true;
+            uploadDataBtn.textContent = '上传中...';
+            uploadDataBtn.style.boxShadow = '0 0 10px var(--neon-pink)';
+
+            protocolStatusMessage.textContent = '正在加密数据包...';
+            protocolStatusMessage.style.color = 'var(--neon-pink)';
+            protocolProgressBar.style.width = '0%';
+            protocolProgressBar.classList.remove('error');
+            protocolProgressBar.classList.add('show');
+            protocolProgressBar.style.boxShadow = '0 0 5px var(--neon-pink)';
+
+            let uploadProgress = 0;
+            const uploadInterval = setInterval(() => {
+                uploadProgress += 5;
+                protocolProgressBar.style.width = `${uploadProgress}%`;
+                protocolProgressBar.style.boxShadow = `0 0 ${5 + (uploadProgress / 10)}px var(--neon-pink)`;
+
+                if (uploadProgress < 30) {
+                    protocolStatusMessage.textContent = '正在加密数据包...';
+                } else if (uploadProgress < 70) {
+                    protocolStatusMessage.textContent = '建立上传隧道...';
+                } else if (uploadProgress < 100) {
+                    protocolStatusMessage.textContent = '传输数据块...';
+                } else {
+                    clearInterval(uploadInterval);
+                    protocolStatusMessage.textContent = '数据上传完成。';
+                    protocolStatusMessage.style.color = 'var(--success-green)';
+                    protocolProgressBar.style.width = '100%';
+                    protocolProgressBar.style.boxShadow = '0 0 15px var(--success-green)';
+                    writeConsole("数据上传完成。服务器确认。");
+                    writeLog("Data upload complete. Server acknowledged.", 'success');
+
+                    setTimeout(() => {
+                        protocolProgressBar.style.width = '0%';
+                        protocolProgressBar.classList.remove('show');
+                        protocolProgressBar.style.boxShadow = 'none';
+                        protocolStatusMessage.textContent = '';
+                    }, 1500);
+
+                    uploadDataBtn.textContent = '上传数据';
+                    uploadDataBtn.disabled = false;
+                    uploadDataBtn.style.boxShadow = '0 0 5px var(--neon-blue)';
+                }
+            }, 150); // 上传速度
+        });
+
+        // --- 9. 重置系统逻辑 ---
+        resetSystemBtn.addEventListener('click', () => {
+            playSound(clickSound);
+            if (isSystemResetting) return;
+
+            isSystemResetting = true;
+            writeLog("Initiating system reset...", 'warn');
+            writeConsole("执行系统重置...", 'command');
+
+            // 禁用所有按钮
+            const allButtons = document.querySelectorAll('.control-button');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            // 停止所有动画和更新
+            clearInterval(scrambleInterval);
+            clearInterval(dataUpdateInterval);
+            clearInterval(runtimeUpdateInterval);
+            decodedTextElement.textContent = "系统重置中...";
+            protocolStatusMessage.textContent = "系统正在重置。请等待...";
+            protocolStatusMessage.style.color = 'var(--warning-orange)';
+            protocolProgressBar.style.width = '0%';
+            protocolProgressBar.classList.add('show');
+            protocolProgressBar.classList.remove('error'); // 确保不是红色
+            protocolProgressBar.style.boxShadow = '0 0 10px var(--warning-orange)';
+
+            systemRuntimeArea.style.display = 'none';
+            stopDataSimulation(); // 确保数据回到初始值
+
+            mainContainer.classList.remove('protocol-active', 'protocol-inactive-visual', 'emergency-shutdown-visual');
+            mainContainer.style.animation = 'none'; // 停止所有边框动画，然后恢复默认
+
+            let resetProgress = 0;
+            const resetInterval = setInterval(() => {
+                resetProgress += 20;
+                protocolProgressBar.style.width = `${resetProgress}%`;
+                if (resetProgress === 20) { writeLog("Clearing cached data...", 'info'); writeConsole("清除缓存数据..."); }
+                if (resetProgress === 40) { writeLog("Reinitializing sub-systems...", 'info'); writeConsole("重新初始化子系统..."); }
+                if (resetProgress === 60) { writeLog("Verifying integrity...", 'info'); writeConsole("验证系统完整性..."); }
+                if (resetProgress === 80) { writeLog("Applying initial configuration...", 'info'); writeConsole("应用初始配置..."); }
+
+                if (resetProgress >= 100) {
+                    clearInterval(resetInterval);
+                    protocolProgressBar.style.width = '100%';
+                    protocolProgressBar.style.boxShadow = '0 0 15px var(--success-green)';
+                    protocolStatusMessage.textContent = '系统重置完成。';
+                    protocolStatusMessage.style.color = 'var(--success-green)';
+                    writeLog("System reset complete. Ready for operation.", 'success');
+                    writeConsole("系统重置完成。准备就绪。", 'success');
+
+
+                    setTimeout(() => {
+                        protocolProgressBar.style.width = '0%';
+                        protocolProgressBar.classList.remove('show');
+                        protocolProgressBar.style.boxShadow = 'none';
+                        protocolStatusMessage.textContent = '';
+                        decodedTextElement.textContent = initialLogText; // 恢复初始日志文本
+                        startDecodingAnimation(); // 重新开始解码动画
+                    }, 1000);
+
+                    // 恢复初始状态
+                    isProtocolActive = false;
+                    protocolStartTime = null;
+                    startProtocolBtn.disabled = false;
+                    startProtocolBtn.textContent = '启动协议';
+                    startProtocolBtn.classList.remove('active');
+                    stopProtocolBtn.disabled = true;
+                    stopProtocolBtn.textContent = '停止协议';
+                    stopProtocolBtn.classList.remove('active');
+                    syncDataBtn.disabled = true;
+                    uploadDataBtn.disabled = true; // 重置后上传数据按钮禁用
+                    resetSystemBtn.disabled = false; // 重置按钮重新可用
+                    emergencyShutdownBtn.disabled = false; // 紧急关闭按钮重新可用
+
+                    mainContainer.style.animation = 'border-flicker 3s infinite alternate'; // 恢复默认边框动画
+                    startDataSimulation(); // 恢复数据模拟
+                    isSystemResetting = false;
+                }
+            }, 400); // 重置速度
+        });
+
+        // --- 10. 紧急关闭逻辑 ---
+        emergencyShutdownBtn.addEventListener('click', () => {
+            playSound(alarmSound, 0.7); // 播放警报声
+            if (emergencyShutdownBtn.disabled) return;
+
+            writeLog("CRITICAL: Initiating emergency shutdown sequence!", 'error');
+            writeConsole("::: 紧急关闭命令已接收！ :::", 'error');
+            screenOverlay.classList.add('glitch-noise'); // 激活屏幕噪声
+            mainContainer.classList.add('emergency-shutdown-visual'); // 紧急关闭边框动画
+
+            // 禁用所有按钮
+            const allButtons = document.querySelectorAll('.control-button');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            clearInterval(scrambleInterval);
+            clearInterval(dataUpdateInterval);
+            clearInterval(runtimeUpdateInterval);
+            decodedTextElement.textContent = "::: 紧急关闭进行中 :::";
+            decodedTextElement.style.color = 'var(--error-red)';
+
+            protocolStatusMessage.textContent = "::: 警告：系统完整性受损。正在强制断开连接！ :::";
+            protocolStatusMessage.style.color = 'var(--error-red)';
+            protocolProgressBar.style.width = '100%'; // 立即显示100%
+            protocolProgressBar.classList.add('show', 'error');
+            protocolProgressBar.style.boxShadow = '0 0 20px var(--error-red)';
+
+            systemRuntimeArea.style.display = 'none';
+            stopDataSimulation();
+
+            isProtocolActive = false;
+            protocolStartTime = null;
+
+            setTimeout(() => {
+                writeLog("EMERGENCY SHUTDOWN COMPLETE. System offline.", 'error');
+                writeConsole("--- 系统已强制关闭 ---", 'error');
+                decodedTextElement.textContent = "--- 系统已强制关闭 ---";
+                decodedTextElement.style.color = 'var(--light-text)'; // 恢复颜色
+                protocolStatusMessage.textContent = '系统已离线。';
+                protocolStatusMessage.style.color = 'var(--light-text)';
+
+                protocolProgressBar.style.width = '0%';
+                protocolProgressBar.classList.remove('show', 'error');
+                protocolProgressBar.style.boxShadow = 'none';
+
+                mainContainer.classList.remove('protocol-active', 'protocol-inactive-visual', 'emergency-shutdown-visual');
+                mainContainer.style.animation = 'border-flicker 3s infinite alternate'; // 恢复默认边框动画
+
+                screenOverlay.classList.remove('glitch-noise'); // 移除屏幕噪声
+
+                // 恢复初始按钮状态
+                startProtocolBtn.disabled = false;
+                startProtocolBtn.textContent = '启动协议';
+
+                stopProtocolBtn.disabled = true;
+                stopProtocolBtn.textContent = '停止协议';
+                stopProtocolBtn.classList.remove('active'); // 确保移除active类
+                syncDataBtn.disabled = true;
+                uploadDataBtn.disabled = true; // 紧急关闭后上传数据按钮禁用
+                resetSystemBtn.disabled = false;
+                emergencyShutdownBtn.disabled = false;
+
+                startDataSimulation(); // 恢复数据模拟
+                startDecodingAnimation(); // 恢复初始解码动画
+            }, 3000); // 紧急关闭持续3秒
+        });
+
+
+        // --- 11. 更新协议运行时间和星际标准时 ---
+        function updateProtocolRuntime() {
+            if (protocolStartTime) {
+                const elapsedMilliseconds = Date.now() - protocolStartTime;
+                const totalSeconds = Math.floor(elapsedMilliseconds / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+
+                const formatTime = (num) => String(num).padStart(2, '0');
+                protocolRuntimeDisplay.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(seconds)}`;
+            }
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentDay = now.getDate();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentSecond = now.getSeconds();
+
+            const galacticYear = currentYear + 3456;
+            const galacticMonth = (currentMonth + 5) % 12 + 1;
+            const galacticDay = (currentDay + 10) % 30 + 1;
+
+            const galacticEpoch = "GALACTIC-STANDARD";
+            const galacticZone = "GH";
+
+            galacticTimeDisplay.textContent =
+                `${galacticEpoch} ${galacticYear}.${String(galacticMonth).padStart(2, '0')}.${String(galacticDay).padStart(2, '0')} ` +
+                `${galacticZone}:${String(currentHour).padStart(2, '0')}.${String(currentMinute).padStart(2, '0')}.${String(currentSecond).padStart(2, '0')}`;
+        }
+
+        // --- 12. 交互式控制台逻辑 ---
+        consoleInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = consoleInput.value.trim();
+                if (command === '') return;
+
+                writeConsole(command, 'command');
+                consoleHistory.unshift(command); // Add to history
+                consoleHistoryIndex = -1; // Reset history index
+
+                handleConsoleCommand(command.toLowerCase());
+                consoleInput.value = '';
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault(); // Prevent cursor from moving to start of input
+                if (consoleHistory.length > 0) {
+                    if (consoleHistoryIndex === -1) {
+                        consoleHistoryIndex = 0;
+                    } else if (consoleHistoryIndex < consoleHistory.length - 1) {
+                        consoleHistoryIndex++;
+                    }
+                    consoleInput.value = consoleHistory[consoleHistoryIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (consoleHistory.length > 0) {
+                    if (consoleHistoryIndex > 0) {
+                        consoleHistoryIndex--;
+                        consoleInput.value = consoleHistory[consoleHistoryIndex];
+                    } else {
+                        consoleHistoryIndex = -1;
+                        consoleInput.value = '';
+                    }
+                }
+            }
+        });
+
+        function handleConsoleCommand(command) {
+            switch (command) {
+                case 'help':
+                    writeConsole("可用的命令:");
+                    writeConsole("  status   - 显示当前系统状态概览");
+                    writeConsole("  log      - 显示最近的系统日志条目");
+                    writeConsole("  protocol - 显示协议状态和操作指令");
+                    writeConsole("  clear    - 清除控制台输出");
+                    writeConsole("  echo [message] - 在控制台回显消息");
+                    writeConsole("  reboot   - 模拟系统重启 (与'重置系统'按钮相同)");
+                    writeConsole("  shutdown - 模拟紧急关闭 (与'紧急关闭'按钮相同)");
+                    break;
+                case 'status':
+                    writeConsole("--- 系统状态概览 ---");
+                    for (const key in dataElements) {
+                        writeConsole(`  ${key.replace(/([A-Z])/g, ' $1').trim().replace(' ', ' ')}: ${dataElements[key].textContent}`);
+                    }
+                    break;
+                case 'log':
+                    writeConsole("--- 最近系统日志 ---");
+                    if (systemLogArea.children.length === 0) {
+                        writeConsole("  日志区域为空。");
+                    } else {
+                        // 只显示最后几条日志
+                        const logEntries = Array.from(systemLogArea.children);
+                        const displayCount = Math.min(logEntries.length, 10);
+                        for (let i = logEntries.length - displayCount; i < logEntries.length; i++) {
+                            writeConsole(`  ${logEntries[i].textContent}`);
+                        }
+                    }
+                    break;
+                case 'protocol':
+                    writeConsole("--- 协议状态 ---");
+                    writeConsole(`  当前协议状态: ${isProtocolActive ? '激活' : '非激活'}`);
+                    writeConsole("  使用 'start protocol' 启动协议。");
+                    writeConsole("  使用 'stop protocol' 停止协议。");
+                    break;
+                case 'clear':
+                    consoleOutput.innerHTML = '控制台已清除。<br>';
+                    break;
+                case 'reboot':
+                    writeConsole("执行重启命令...", 'command');
+                    resetSystemBtn.click(); // 触发重置按钮的点击事件
+                    break;
+                case 'shutdown':
+                    writeConsole("执行紧急关闭命令...", 'command');
+                    emergencyShutdownBtn.click(); // 触发紧急关闭按钮的点击事件
+                    break;
+                case 'start protocol':
+                    if (!isProtocolActive) {
+                        writeConsole("正在通过控制台启动协议...", 'command');
+                        startProtocolBtn.click();
+                    } else {
+                        writeConsole("协议已在运行中。", 'error');
+                    }
+                    break;
+                case 'stop protocol':
+                    if (isProtocolActive) {
+                        writeConsole("正在通过控制台停止协议...", 'command');
+                        stopProtocolBtn.click();
+                    } else {
+                        writeConsole("协议未运行。", 'error');
+                    }
+                    break;
+                default:
+                    if (command.startsWith('echo ')) {
+                        writeConsole(command.substring(5)); // 回显命令后的内容
+                    } else {
+                        writeConsole(`未知命令: '${command}'。输入 'help' 查看可用命令。`, 'error');
+                    }
+                    break;
+            }
+        }
+
+        // --- 13. 背景音乐控制 ---
+        musicToggleButton.addEventListener('click', () => {
+            playSound(clickSound, 0.3); // 播放一个轻微的点击音效
+            if (backgroundMusic.paused) {
+                backgroundMusic.play().catch(e => console.log("Music play failed:", e));
+                musicToggleButton.classList.add('active');
+                writeLog("Background music enabled.", 'info');
+                musicToggleButton.querySelector('.icon').textContent = '||'; // 暂停图标
+            } else {
+                backgroundMusic.pause();
+                musicToggleButton.classList.remove('active');
+                writeLog("Background music disabled.", 'info');
+                musicToggleButton.querySelector('.icon').textContent = '♪'; // 播放图标
+            }
+        });
+
+
+        // --- 页面加载时执行 ---
+        window.onload = () => {
+            writeLog("System initialization sequence engaged.", 'info');
+            startDecodingAnimation();
+            resizeStarCanvas();
+            animateStars();
+            startDataSimulation();
+
+            systemRuntimeArea.style.display = 'none';
+            stopProtocolBtn.disabled = true;
+            syncDataBtn.disabled = true;
+            uploadDataBtn.disabled = true; // 初始禁用上传数据按钮
+            resetSystemBtn.disabled = false;
+            emergencyShutdownBtn.disabled = false;
+            writeLog("System core loaded. Ready for command input.", 'success');
+            consoleInput.focus(); // 自动聚焦控制台输入框
+        };
+
+        // --- 窗口大小改变时重新绘制星空 ---
+        window.addEventListener('resize', resizeStarCanvas);
+        /* JavaScript 逻辑结束 */
+    </script>
+</body>
+</html>
