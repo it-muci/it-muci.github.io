@@ -29,7 +29,7 @@
             height: 100%; /* 确保html和body都占满整个视口高度 */
             margin: 0;
             padding: 0; /* 移除默认的内边距 */
-            overflow: hidden; /* 阻止整个页面的滚动 */
+            overflow: hidden; /* 阻止整个页面的滚动，在加载动画完成后会恢复 */
             overscroll-behavior: none; /* 防止在移动设备上出现弹性滚动效果 */
         }
 
@@ -43,6 +43,99 @@
             align-items: center; /* 水平居中 */
             position: relative;
             cursor: crosshair;
+        }
+
+        /* Linux 开机加载动画样式 */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000; /* 黑色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* 确保它在最顶层 */
+            opacity: 1;
+            transition: opacity 1s ease-out; /* 隐藏时的渐变效果 */
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* 隐藏后允许点击下方内容 */
+        }
+
+        .loading-console {
+            width: 80%;
+            max-width: 800px;
+            height: 60%;
+            max-height: 500px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid #0f0; /* 绿色边框 */
+            box-shadow: 0 0 15px #0f0, inset 0 0 7px #0f0;
+            padding: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #0f0; /* 绿色文本 */
+            font-size: 1em;
+            overflow: hidden; /* 隐藏内容溢出，我们逐行输出 */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        #loading-output {
+            flex-grow: 1;
+            margin: 0;
+            overflow-y: auto; /* 允许文本内容滚动 */
+            white-space: pre-wrap; /* 保留空白符和换行 */
+            word-break: break-all; /* 防止长单词溢出 */
+            line-height: 1.3;
+        }
+
+        #loading-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        #loading-output::-webkit-scrollbar-track {
+            background: rgba(0, 255, 0, 0.1);
+        }
+        #loading-output::-webkit-scrollbar-thumb {
+            background: #0f0;
+            border-radius: 4px;
+            box-shadow: 0 0 3px #0f0;
+        }
+        #loading-output::-webkit-scrollbar-thumb:hover {
+            background: #0fff00;
+            box-shadow: 0 0 7px #0fff00;
+        }
+
+        .loading-input-line {
+            flex-shrink: 0; /* 不收缩 */
+            margin-top: 10px;
+        }
+
+        .loading-prompt {
+            color: #0fff00; /* 更亮的绿色 */
+            margin-right: 5px;
+        }
+
+        .loading-cursor {
+            animation: blink-cursor 1s step-end infinite;
+        }
+
+        @keyframes blink-cursor {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 隐藏主内容，直到加载动画完成 */
+        #main-container {
+            opacity: 0;
+            transition: opacity 1s ease-in;
+            /* ... 保持您现有的其他样式 ... */
+        }
+        #main-container.loaded {
+            opacity: 1;
         }
 
         /* 自定义滚动条样式 */
@@ -565,7 +658,7 @@
             /* 新增或修改以下属性 */
             resize: none; /* 禁用用户手动调整大小 */
             min-height: 38px; /* 设置一个最小高度，大约等于一行input的高度 */
-            overflow-y: hidden; /* 默认隐藏滚动条，由JS控制显示 */
+            overflow-y: hidden; /* 默认隐藏滚动条，由 JS 控制显示 */
             box-sizing: border-box; /* 确保padding和border包含在宽度内 */
             line-height: 1.5; /* 确保行高与计算高度一致 */
             vertical-align: top; /* 确保文本在textarea顶部对齐 */
@@ -648,6 +741,11 @@
             #music-toggle-btn .icon {
                 font-size: 1.2em;
             }
+            .loading-console {
+                width: 90%;
+                height: 70%;
+                padding: 15px;
+            }
         }
         @media (max-width: 480px) {
             .controls {
@@ -659,6 +757,16 @@
     </style>
 </head>
 <body>
+    <div id="loading-screen">
+        <div class="loading-console">
+            <pre id="loading-output"></pre>
+            <div class="loading-input-line">
+                <span class="loading-prompt">root@system:~#</span>
+                <span class="loading-cursor">_</span>
+            </div>
+        </div>
+    </div>
+
     <canvas id="star-canvas"></canvas>
     <div id="scan-lines"></div>
     <div id="screen-overlay"></div>
@@ -781,7 +889,7 @@
         const emergencyShutdownBtn = document.getElementById('emergency-shutdown-btn');
 
         const mainHeader = document.getElementById('main-header');
-        const mainContainer = document.getElementById('main-container');
+        const mainContainer = document.getElementById('main-container'); // 已经在加载动画部分引用
         const protocolStatusMessage = document.getElementById('protocol-status-message');
         const protocolProgressBar = document.getElementById('protocol-progress-bar');
 
@@ -1344,7 +1452,7 @@
                         startDecodingAnimation(); // 重新开始解码动画
                     }, 1000);
 
-                    // 恢复初始状态
+                    // 恢复初始按钮状态
                     isProtocolActive = false;
                     protocolStartTime = null;
                     startProtocolBtn.disabled = false;
@@ -1604,24 +1712,108 @@
             }
         });
 
+        // --- Linux 开机加载动画序列 ---
+        const loadingMessages = [
+            "Initializing system...",
+            "Scanning /dev/sda1 for file system errors... clean.",
+            "Mounting /sys, /proc, /dev...",
+            "Starting system logger...",
+            "Activating network interfaces: eth0...",
+            "Setting up hostname: alienware-tech",
+            "Checking security protocols... OK.",
+            "Loading kernel modules...",
+            "Starting services: SSHD, NTP, Webserver...",
+            "Starting AlienTech Protocol Service...",
+            "Checking display drivers... OK.",
+            "Applying quantum decryption algorithms...",
+            "Synchronizing inter-dimensional relays...",
+            "Boot sequence complete. Welcome to AlienTech Protocol System.",
+            "", // 添加一个空行，让光标出现在最后一行
+            "Ready."
+        ];
+
+        // 获取加载屏幕相关元素
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingOutput = document.getElementById('loading-output');
+
+        function startLoadingAnimation(callback) {
+            let messageIndex = 0;
+            let charIndex = 0;
+            let outputLine = '';
+            const typeSpeed = 30; // 打字速度 (ms)
+            const lineDelay = 500; // 每行之间的延迟 (ms)
+
+            console.log("进入 startLoadingAnimation 函数。"); // 调试日志
+            console.log("初始 messageIndex:", messageIndex, "charIndex:", charIndex); // 调试日志
+
+            // 检查 DOM 元素是否成功获取
+            if (!loadingScreen || !loadingOutput) {
+                console.error("错误: 无法找到 'loading-screen' 或 'loading-output' 元素。请检查HTML ID是否正确。");
+                // 如果元素未找到，则直接跳过动画，显示主内容
+                loadingScreen.classList.add('hidden');
+                mainContainer.classList.add('loaded');
+                document.body.style.overflow = 'auto';
+                if (callback) callback();
+                return;
+            }
+
+            function typeLine() {
+                console.log(`--- typeLine 执行 --- messageIndex: ${messageIndex}, charIndex: ${charIndex}`); // 调试日志
+                if (messageIndex < loadingMessages.length) {
+                    const currentMessage = loadingMessages[messageIndex];
+                    if (charIndex < currentMessage.length) {
+                        outputLine += currentMessage[charIndex];
+                        loadingOutput.textContent = outputLine;
+                        charIndex++;
+                        loadingOutput.scrollTop = loadingOutput.scrollHeight; // 自动滚动到底部
+                        // console.log(`正在打印字符: ${currentMessage[charIndex - 1]}，当前 outputLine: "${outputLine.substring(0, Math.min(outputLine.length, 50))}..."`); // 详细调试日志
+                        setTimeout(typeLine, typeSpeed); // <--- 确保这一行被调用
+                    } else {
+                        // 当前行打字完毕
+                        outputLine += '\n'; // 添加换行
+                        loadingOutput.textContent = outputLine;
+                        messageIndex++;
+                        charIndex = 0;
+                        console.log(`当前行打印完毕，切换到下一行。下一行 messageIndex: ${messageIndex}`); // 调试日志
+                        setTimeout(typeLine, lineDelay); // <--- 确保这一行被调用
+                    }
+                } else {
+                    // 所有消息都已显示
+                    console.log("所有加载消息已显示完毕。"); // 调试日志
+                    setTimeout(() => {
+                        loadingScreen.classList.add('hidden'); // 隐藏加载动画
+                        mainContainer.classList.add('loaded'); // 显示主内容
+                        document.body.style.overflow = 'auto'; // 恢复body的滚动条
+                        if (callback) {
+                            callback(); // 调用加载完成后的回调函数
+                        }
+                    }, 1000); // 隐藏动画前的额外延迟
+                }
+            }
+
+            typeLine(); // 开始打字动画
+        }
 
         // --- 页面加载时执行 ---
         window.onload = () => {
-            writeLog("System initialization sequence engaged.", 'info');
-            startDecodingAnimation();
-            resizeStarCanvas();
-            animateStars();
-            startDataSimulation();
+            // 启动加载动画，并在其完成后执行原有的页面加载逻辑
+            startLoadingAnimation(() => {
+                writeLog("System initialization sequence engaged.", 'info');
+                startDecodingAnimation();
+                resizeStarCanvas();
+                animateStars();
+                startDataSimulation();
 
-            systemRuntimeArea.style.display = 'none';
-            stopProtocolBtn.disabled = true;
-            syncDataBtn.disabled = true;
-            uploadDataBtn.disabled = true; // 初始禁用上传数据按钮
-            resetSystemBtn.disabled = false;
-            emergencyShutdownBtn.disabled = false;
-            writeLog("System core loaded. Ready for command input.", 'success');
-            consoleInput.focus(); // 自动聚焦控制台输入框
-            autoResizeConsoleInput(); // 页面加载时调用一次以确保正确初始高度
+                systemRuntimeArea.style.display = 'none';
+                stopProtocolBtn.disabled = true;
+                syncDataBtn.disabled = true;
+                uploadDataBtn.disabled = true;
+                resetSystemBtn.disabled = false;
+                emergencyShutdownBtn.disabled = false;
+                writeLog("System core loaded. Ready for command input.", 'success');
+                consoleInput.focus();
+                autoResizeConsoleInput();
+            });
         };
 
         // --- 窗口大小改变时重新绘制星空 ---
