@@ -37,10 +37,10 @@
             font-family: 'Share Tech Mono', monospace;
             background-color: var(--dark-bg);
             color: var(--light-text);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; /* 将body设置为flex容器 */
+            flex-direction: column; /* 垂直排列子元素 */
+            justify-content: center; /* 垂直居中 */
+            align-items: center; /* 水平居中 */
             position: relative;
             cursor: crosshair;
         }
@@ -171,9 +171,9 @@
             animation: border-flicker 3s infinite alternate; /* 初始闪烁动画 */
 
             /* 核心修改：让容器适应高度并允许内部滚动 */
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1; /* 允许在flex容器 (body) 中填充可用空间 */
+            display: flex; /* 启用Flexbox布局 */
+            flex-direction: column; /* 子元素垂直堆叠 */
+            flex-grow: 1; /* 允许在body这个flex容器中填充可用空间 */
             min-height: 0; /* 关键：防止flex item (container) 在内容溢出时无限制增长 */
             overflow-y: auto; /* 允许 container 自身内容溢出时滚动 */
             padding-bottom: 20px; /* 防止底部内容被裁切，因为底部有padding和margin */
@@ -225,7 +225,7 @@
             position: relative;
             padding-bottom: 10px;
             /* 确保header不会占据过多空间 */
-            flex-shrink: 0;
+            flex-shrink: 0; /* 不会收缩 */
         }
 
         .header::after {
@@ -246,13 +246,13 @@
             font-size: 1.1em;
             position: relative;
             /* 确保section不会占据过多空间 */
-            flex-shrink: 0;
+            flex-shrink: 0; /* 不会收缩 */
         }
 
         .section.log-section { /* 为日志区域的父级section添加一个类 */
             flex-grow: 1; /* 允许日志section在container中填充剩余空间 */
-            display: flex;
-            flex-direction: column;
+            display: flex; /* 将其设置为flex容器 */
+            flex-direction: column; /* 子元素垂直堆叠 */
             min-height: 0; /* 关键：防止flex item (section) 无限制增长 */
         }
         .section.console-section { /* 为控制台区域的父级section添加一个类 */
@@ -279,7 +279,7 @@
             gap: 15px;
             text-align: left;
             /* 确保data-display不会占据过多空间 */
-            flex-shrink: 0;
+            flex-shrink: 0; /* 不会收缩 */
         }
 
         .data-item {
@@ -562,6 +562,13 @@
             font-size: 1em;
             outline: none;
             transition: box-shadow 0.2s ease;
+            /* 新增或修改以下属性 */
+            resize: none; /* 禁用用户手动调整大小 */
+            min-height: 38px; /* 设置一个最小高度，大约等于一行input的高度 */
+            overflow-y: hidden; /* 默认隐藏滚动条，由JS控制显示 */
+            box-sizing: border-box; /* 确保padding和border包含在宽度内 */
+            line-height: 1.5; /* 确保行高与计算高度一致 */
+            vertical-align: top; /* 确保文本在textarea顶部对齐 */
         }
         #console-input:focus {
             box-shadow: 0 0 10px var(--console-input), inset 0 0 5px var(--console-input);
@@ -654,7 +661,8 @@
 <body>
     <canvas id="star-canvas"></canvas>
     <div id="scan-lines"></div>
-    <div id="screen-overlay"></div> <div class="glow-cursor"></div>
+    <div id="screen-overlay"></div>
+    <div class="glow-cursor"></div>
 
     <div class="container" id="main-container">
         <h1 class="header glitch" id="main-header">星际协议数据中心</h1>
@@ -692,7 +700,7 @@
             </div>
             <div id="console-input-area">
                 <span id="console-input-prompt">[PROT_SYS]$</span>
-                <input type="text" id="console-input" autofocus autocomplete="off">
+                <textarea id="console-input" rows="1" autofocus autocomplete="off"></textarea>
             </div>
         </div>
 
@@ -700,7 +708,8 @@
             <button class="control-button" id="start-protocol-btn">启动协议</button>
             <button class="control-button" id="stop-protocol-btn" disabled>停止协议</button>
             <button class="control-button" id="sync-data-btn" disabled>数据同步</button>
-            <button class="control-button" id="upload-data-btn" disabled>上传数据</button> <button class="control-button" id="reset-system-btn">重置系统</button>
+            <button class="control-button" id="upload-data-btn" disabled>上传数据</button>
+            <button class="control-button" id="reset-system-btn">重置系统</button>
             <button class="control-button" id="emergency-shutdown-btn">紧急关闭</button>
         </div>
 
@@ -723,7 +732,8 @@
 
     <audio id="click-sound" src="https://www.soundjay.com/buttons/beep-07a.mp3" preload="auto"></audio>
     <audio id="alarm-sound" src="https://www.soundjay.com/misc/alarms/alarm-sound-1.mp3" preload="auto"></audio>
-    <audio id="background-music" src="https://www.soundjay.com/ambient/ambient-sound-5.mp3" loop preload="auto"></audio> <script>
+    <audio id="background-music" src="https://www.soundjay.com/ambient/ambient-sound-5.mp3" loop preload="auto"></audio>
+    <script>
         /* JavaScript 逻辑开始 */
         // --- 全局引用和状态变量 ---
         const initialLogText = "加密数据传输成功。未知信号源已识别。协议版本：Gamma-7。建立通信链路中...";
@@ -793,7 +803,7 @@
 
         // 控制台元素
         const consoleOutput = document.getElementById('console-output');
-        const consoleInput = document.getElementById('console-input');
+        const consoleInput = document.getElementById('console-input'); // 现在是 textarea
         const consoleInputPrompt = document.getElementById('console-input-prompt');
         let consoleHistory = [];
         let consoleHistoryIndex = -1;
@@ -831,6 +841,22 @@
             }
             consoleOutput.appendChild(line);
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // --- 辅助函数：根据内容调整 textarea 高度 ---
+        function autoResizeConsoleInput() {
+            consoleInput.style.height = 'auto'; // 首先重置高度以获取准确的 scrollHeight
+            const currentHeight = consoleInput.scrollHeight;
+            // 设置最大高度，例如 200px (大约5-6行)
+            const maxHeight = 200;
+
+            if (currentHeight > maxHeight) {
+                consoleInput.style.height = `${maxHeight}px`;
+                consoleInput.style.overflowY = 'scroll'; // 超过最大高度时显示滚动条
+            } else {
+                consoleInput.style.height = `${currentHeight}px`;
+                consoleInput.style.overflowY = 'hidden'; // 未超过最大高度时隐藏滚动条
+            }
         }
 
         // --- 1. 文本解码效果 ---
@@ -1442,15 +1468,22 @@
         // --- 12. 交互式控制台逻辑 ---
         consoleInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                const command = consoleInput.value.trim();
-                if (command === '') return;
+                e.preventDefault(); // 阻止默认的换行行为
+                const command = consoleInput.value.trim(); // 使用trim()处理多行输入时的空白行
+                if (command === '') {
+                    // 如果只有空白行，清空并保持一行高
+                    consoleInput.value = '';
+                    autoResizeConsoleInput();
+                    return;
+                }
 
                 writeConsole(command, 'command');
                 consoleHistory.unshift(command); // Add to history
                 consoleHistoryIndex = -1; // Reset history index
 
                 handleConsoleCommand(command.toLowerCase());
-                consoleInput.value = '';
+                consoleInput.value = ''; // 清空输入框
+                autoResizeConsoleInput(); // 清空后重置高度为一行
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault(); // Prevent cursor from moving to start of input
                 if (consoleHistory.length > 0) {
@@ -1460,6 +1493,7 @@
                         consoleHistoryIndex++;
                     }
                     consoleInput.value = consoleHistory[consoleHistoryIndex];
+                    autoResizeConsoleInput(); // 历史命令加载后调整高度
                 }
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
@@ -1467,13 +1501,18 @@
                     if (consoleHistoryIndex > 0) {
                         consoleHistoryIndex--;
                         consoleInput.value = consoleHistory[consoleHistoryIndex];
+                        autoResizeConsoleInput(); // 历史命令加载后调整高度
                     } else {
                         consoleHistoryIndex = -1;
                         consoleInput.value = '';
+                        autoResizeConsoleInput(); // 清空后重置高度为一行
                     }
                 }
             }
         });
+
+        // 新增：监听 input 事件以实现实时自适应高度
+        consoleInput.addEventListener('input', autoResizeConsoleInput);
 
         function handleConsoleCommand(command) {
             switch (command) {
@@ -1582,6 +1621,7 @@
             emergencyShutdownBtn.disabled = false;
             writeLog("System core loaded. Ready for command input.", 'success');
             consoleInput.focus(); // 自动聚焦控制台输入框
+            autoResizeConsoleInput(); // 页面加载时调用一次以确保正确初始高度
         };
 
         // --- 窗口大小改变时重新绘制星空 ---
