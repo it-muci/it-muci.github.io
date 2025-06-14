@@ -134,7 +134,7 @@
             border-radius: 10px; /* R-angle for scrollbar thumb */
             border: 2px solid rgba(0, 255, 255, 0.7); /* Cyan border */
             box-shadow: 0 0 17px rgba(0, 255, 255, 1.5); /* Cyan glow */
-            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transitions */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transitions for faster responsiveness */
         }
         .chat-messages::-webkit-scrollbar-thumb:hover {
             background: #CCFFFF; /* Brighter cyan on hover */
@@ -150,7 +150,7 @@
             border-bottom-left-radius: 0;
             border-top-right-radius: 1.75rem; /* R-angle for AI message */
             box-shadow: 0 0 45px rgba(0, 255, 255, 1.2); /* Cyan glow effect */
-            animation: fadeIn 0.6s ease-out, glowPulseAI 4.5s infinite alternate ease-in-out; /* Message fade-in and glow pulse animation */
+            animation: fadeIn 0.3s ease-out, glowPulseAI 4.5s infinite alternate ease-in-out; /* Faster fade-in */
             border: 3px solid rgba(0, 255, 255, 0.9); /* Cyan border */
         }
         @keyframes glowPulseAI {
@@ -165,7 +165,7 @@
             border-bottom-right-radius: 0;
             border-top-left-radius: 1.75rem; /* R-angle for user message */
             box-shadow: 0 0 45px rgba(204, 0, 255, 1.2); /* Electric Purple glow effect */
-            animation: fadeIn 0.6s ease-out, glowPulseUser 4.5s infinite alternate ease-in-out; /* Message fade-in and glow pulse animation */
+            animation: fadeIn 0.3s ease-out, glowPulseUser 4.5s infinite alternate ease-in-out; /* Faster fade-in */
             border: 3px solid rgba(204, 0, 255, 0.9); /* Electric Purple border */
         }
         @keyframes glowPulseUser {
@@ -177,7 +177,7 @@
             background-image: none; /* Remove gradient */
             background-color: #00FFFF; /* Solid Pure Cyan background */
             box-shadow: 0 20px 70px 0 rgba(0, 255, 255, 1.5); /* Single intense cyan glow */
-            transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Faster transition for responsiveness */
             border: 5px solid rgba(0, 255, 255, 1.8); /* Increased border thickness and alpha for glow */
             text-shadow: 0 0 25px rgba(255, 255, 255, 1.2); /* More prominent text glow */
             letter-spacing: 2.3px; /* Scaled letter spacing */
@@ -385,7 +385,7 @@
             background-color: #0A001F; /* Dark Purple-Blue background */
             border-color: #2F005F; /* Darker Purple-Blue border */
             color: #E0FFFF; /* Light Cyan text */
-            transition: all 0.4s ease-in-out;
+            transition: all 0.2s ease-in-out; /* Faster transition for responsiveness */
             box-shadow: inset 0 0 25px rgba(0, 255, 255, 0.5); /* Scaled inner shadow - Cyan */
             border-radius: 2.5rem; /* R-angle for input */
             letter-spacing: 0.8px; /* Scaled letter spacing */
@@ -441,7 +441,7 @@
             background: linear-gradient(45deg, #00FFFF, #CCFFFF); /* Cyan gradient avatar */
             border: 4px solid rgba(255, 255, 255, 0.9); /* Scaled border */
             box-shadow: 0 0 30px rgba(0, 255, 255, 1.8); /* Scaled strong glow - Cyan */
-            transition: all 0.4s ease-in-out;
+            transition: all 0.2s ease-in-out; /* Faster transition for responsiveness */
             text-shadow: 0 0 7px #fff; /* Scaled text shadow */
             border-radius: 50%; /* Ensure perfect circle */
         }
@@ -577,7 +577,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // Canvas will automatically provide API key at runtime
+                const apiKey = "AIzaSyAXRYh6rCYk6KN_ADV68ujiSSQfh4-x8WI"; // Canvas will automatically provide API key at runtime
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
