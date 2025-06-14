@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 助手</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Set global font to Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Pure black background, deep as the cosmos - Crucial for star visibility */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px; /* Adjusted base padding for body */
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent scrollbars from affecting background glow */
+            position: relative; /* For background animations */
+        }
+
+        /* Responsive body padding to ensure content isn't cramped */
+        @media (max-width: 639px) { /* Mobile (sm breakpoint and below) */
+            body {
+                padding: 10px; /* Consistent mobile padding */
+            }
+        }
+        @media (min-width: 640px) { /* Small screens (sm) */
+            body {
+                padding: 15px; /* Slightly more padding for small screens */
+            }
+        }
+        @media (min-width: 1024px) { /* Large screens (lg) */
+            body {
+                padding: 30px; /* Increase padding on desktop for more space */
+            }
+        }
+
+        /* Dynamic Starfield Layer 1 (foreground stars - more numerous, slightly brighter, sharper) */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            background-image:
+                radial-gradient(2.8px 2.8px at 10% 15%, #ffffff, rgba(255, 255, 255, 0.25)), /* Larger, brighter stars */
+                radial-gradient(2.2px 2.2px at 30% 60%, #ffffff, rgba(255, 255, 255, 0.2)),
+                radial-gradient(2px 2px at 50% 5%, #ffffff, rgba(255, 255, 255, 0.18)),
+                radial-gradient(1.8px 1.8px at 70% 80%, #ffffff, rgba(255, 255, 255, 0.15)),
+                radial-gradient(1.8px 1.8px at 20% 75%, #ffffff, rgba(255, 255, 255, 0.12)),
+                radial-gradient(1.5px 1.5px at 85% 25%, #ffffff, rgba(255, 255, 255, 0.1)),
+                radial-gradient(1.2px 1.2px at 40% 55%, #ffffff, rgba(255, 255, 255, 0.09)),
+                radial-gradient(1.2px 1.2px at 65% 35%, #ffffff, rgba(255, 255, 255, 0.08)),
+                radial-gradient(1px 1px at 15% 90%, #ffffff, rgba(255, 255, 255, 0.07)),
+                radial-gradient(1px 1px at 90% 45%, #ffffff, rgba(255, 255, 255, 0.06));
+            background-size: 100px 100px; /* Denser stars */
+            animation: starfieldPan1 220s linear infinite; /* Slightly faster for more visible movement */
+            pointer-events: none;
+            z-index: -2; /* Ensure it's below content */
+            opacity: 1; /* Full opacity, individual gradients control transparency */
+            filter: blur(0.3px); /* Less blur for sharper stars */
+        }
+
+        /* Dynamic Starfield Layer 2 (background stars - blurrier, more subtle + slow-moving nebulae) */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            background-image:
+                /* Distant, blurrier stars */
+                radial-gradient(1px 1px at 5% 10%, #e0e0e0, rgba(224, 224, 224, 0.04)),
+                radial-gradient(0.8px 0.8px at 25% 40%, #e0e0e0, rgba(224, 224, 224, 0.03)),
+                radial-gradient(0.7px 0.7px at 55% 70%, #e0e0e0, rgba(224, 224, 224, 0.02)),
+                radial-gradient(0.6px 0.6px at 85% 15%, #e0e0e0, rgba(224, 224, 224, 0.01)),
+                /* Very large, slow-moving, subtle nebulae/glows */
+                radial-gradient(circle at 10% 90%, rgba(0, 100, 255, 0.01) 0%, rgba(0,0,0,0) 60%), /* Subtle deep blue glow */
+                radial-gradient(circle at 90% 10%, rgba(200, 0, 255, 0.01) 0%, rgba(0,0,0,0) 60%), /* Subtle deep purple glow */
+                radial-gradient(circle at 30% 30%, rgba(0, 255, 200, 0.008) 0%, rgba(0,0,0,0) 70%), /* Subtle teal core glow */
+                radial-gradient(circle at 70% 70%, rgba(255, 150, 0, 0.007) 0%, rgba(0,0,0,0) 70%); /* Subtle orange distant glow */
+
+            /* Match number of background-image layers for background-size */
+            background-size: 200px 200px, 200px 200px, 200px 200px, 200px 200px, /* Star sizes */
+                             150vmin 150vmin, 150vmin 150vmin, 150vmin 150vmin, 150vmin 150vmin; /* Larger sizes for nebulae */
+            
+            animation: starfieldPan2 400s linear infinite, 
+                       nebulaPulse 80s infinite alternate ease-in-out; /* Multiple animations for complexity */
+            
+            pointer-events: none;
+            z-index: -3;
+            opacity: 1; /* Keep base opacity at 1, individual gradients handle transparency */
+            filter: blur(1.5px); /* More blur for deep space, blending effects */
+        }
+
+        /* Combined animation for subtle background glow movement/pulse */
+        @keyframes nebulaPulse {
+            0% { background-position: 0% 0%; transform: scale(1); opacity: 1; }
+            25% { background-position: 10% 20%; transform: scale(1.02); opacity: 1; }
+            50% { background-position: 20% 40%; transform: scale(1.05); opacity: 1; }
+            75% { background-position: 30% 60%; transform: scale(1.02); opacity: 1; }
+            100% { background-position: 40% 80%; transform: scale(1); opacity: 1; }
+        }
+
+        /* Starfield panning animations */
+        @keyframes starfieldPan1 {
+            from { background-position: 0 0; }
+            to { background-position: 10000px 10000px; } /* Sufficiently long panning distance */
+        }
+        @keyframes starfieldPan2 {
+            from { background-position: 0 0; }
+            to { background-position: -20000px -20000px; } /* Reverse direction movement */
+        }
+
+        /* Custom scrollbar styles - extremely subtle, high-tech feel */
+        .chat-messages::-webkit-scrollbar {
+            width: 7px; /* Wider scrollbar for more presence */
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: #020005; /* Deep dark purple-blue track background */
+            border-radius: 10px;
+            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8); /* Deeper inner shadow for depth */
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #00FFFF; /* Pure Cyan */
+            border-radius: 10px; /* R-angle for scrollbar thumb */
+            border: 2px solid rgba(0, 255, 255, 0.7); /* Cyan border */
+            box-shadow: 0 0 17px rgba(0, 255, 255, 1.5); /* Cyan glow */
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transitions */
+        }
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #CCFFFF; /* Brighter cyan on hover */
+            box-shadow: 0 0 35px rgba(0, 255, 255, 2); /* Intense cyan glow */
+            transform: scaleY(1.15); /* More pronounced vertical scaling effect */
+            filter: brightness(1.5); /* Extreme brightness increase */
+        }
+        /* Custom styles for AI messages */
+        .ai-message {
+            background-color: #0A001F; /* Very Dark Purple-Blue background */
+            color: #E0FFFF; /* Light Cyan text */
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+            border-top-right-radius: 1.75rem; /* R-angle for AI message */
+            box-shadow: 0 0 45px rgba(0, 255, 255, 1.2); /* Cyan glow effect */
+            animation: fadeIn 0.6s ease-out, glowPulseAI 4.5s infinite alternate ease-in-out; /* Message fade-in and glow pulse animation */
+            border: 3px solid rgba(0, 255, 255, 0.9); /* Cyan border */
+        }
+        @keyframes glowPulseAI {
+            0% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.9); border-color: rgba(0, 255, 255, 0.9); }
+            100% { box-shadow: 0 0 50px rgba(0, 255, 255, 1.5); border-color: rgba(0, 255, 255, 1.2); }
+        }
+        /* Custom styles for user messages */
+        .user-message {
+            background-color: #1F0A1F; /* Dark Purple background */
+            color: #FFCCFF; /* Lighter Purple text */
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+            border-top-left-radius: 1.75rem; /* R-angle for user message */
+            box-shadow: 0 0 45px rgba(204, 0, 255, 1.2); /* Electric Purple glow effect */
+            animation: fadeIn 0.6s ease-out, glowPulseUser 4.5s infinite alternate ease-in-out; /* Message fade-in and glow pulse animation */
+            border: 3px solid rgba(204, 0, 255, 0.9); /* Electric Purple border */
+        }
+        @keyframes glowPulseUser {
+            0% { box-shadow: 0 0 25px rgba(204, 0, 255, 0.9); border-color: rgba(204, 0, 255, 0.9); }
+            100% { box-shadow: 0 0 50px rgba(204, 0, 255, 1.5); border-color: rgba(204, 0, 255, 1.2); }
+        }
+        /* Gradient background and shadow for buttons */
+        .send-button {
+            background-image: none; /* Remove gradient */
+            background-color: #00FFFF; /* Solid Pure Cyan background */
+            box-shadow: 0 20px 70px 0 rgba(0, 255, 255, 1.5); /* Single intense cyan glow */
+            transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 5px solid rgba(0, 255, 255, 1.8); /* Increased border thickness and alpha for glow */
+            text-shadow: 0 0 25px rgba(255, 255, 255, 1.2); /* More prominent text glow */
+            letter-spacing: 2.3px; /* Scaled letter spacing */
+            font-weight: 900; /* Extremely bold font */
+            padding: 0.75rem 2.5rem; /* Scaled padding */
+            font-size: 1.15rem; /* Scaled font size */
+            border-radius: 2.5rem; /* R-angle for buttons */
+        }
+        .send-button:hover {
+            transform: translateY(-15px) scale(1.15); /* More dramatic lift effect */
+            box-shadow: 0 35px 120px 0 rgba(0, 255, 255, 2.2); /* Even stronger, wider cyan glow */
+            border-color: #E0FFFF; /* Lighter cyan for colder, more intense glow effect */
+            filter: brightness(1.2) saturate(1.2); /* Subtle color pop on hover */
+        }
+        .send-button:active {
+            transform: translateY(2px) scale(0.9); /* More noticeable press */
+            box-shadow: 0 15px 50px 0 rgba(0, 255, 255, 1.5); /* Retained glow intensity but reduced spread for pressed look */
+        }
+        /* Loading indicator animation */
+        .loading-spinner {
+            border-top-color: #00FFFF; /* Pure Cyan loading color */
+            border-right-color: #CC00FF; /* Electric Purple loading color */
+            animation: spin 0.35s linear infinite, glow-multi 1.2s ease-in-out infinite alternate; /* Spin and multi-color glow animation */
+            width: 40px; /* Scaled size */
+            height: 40px;
+            border-width: 8px; /* Scaled border */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes glow-multi {
+            0% { box-shadow: 0 0 20px #00FFFF; }
+            50% { box-shadow: 0 0 45px #CC00FF, 0 0 60px #00FFFF; } /* Scaled strong pulse effect */
+            100% { box-shadow: 0 0 20px #00FFFF; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(25px) scale(0.8); } /* Scaled translation */
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        /* Sci-fi border and shadow for main container */
+        .tech-container {
+            border: 5px solid rgba(0, 255, 255, 1.2); /* Scaled border - Cyan */
+            box-shadow: 0 0 250px rgba(0, 255, 255, 1), /* Scaled outer glow - Cyan */
+                        inset 0 0 100px rgba(204, 0, 255, 0.9); /* Scaled inner shadow - Electric Purple */
+            background: linear-gradient(145deg, #020005, #00000A); /* Extremely deep gradient background (Dark Purple-Blue) */
+            border-radius: 6rem; /* R-angle for main container */
+            overflow: hidden; /* Ensure content stays within border radius */
+            position: relative; /* For pseudo-element positioning */
+            backdrop-filter: blur(12px); /* Scaled blur effect */
+            -webkit-backdrop-filter: blur(12px); /* Safari support */
+            min-height: calc(100vh - 40px); /* Ensure min-height adapts to viewport */
+            max-height: 98vh; /* Max height to leave some outer space */
+            /* Default padding for tech-container (mobile first) */
+            padding: 20px; /* Adjusted base padding for mobile */
+            width: 90%; /* Default width */
+            max-width: 400px; /* Increased max width for mobile */
+        }
+
+        /* Responsive adjustments for .tech-container width and padding */
+        @media (min-width: 640px) { /* sm breakpoint */
+            .tech-container {
+                padding: 30px; /* Scaled padding for small screens */
+                max-width: 500px; /* Increased max width */
+            }
+            .sci-fi-title {
+                color: #00FFFF; /* Pure Cyan Title */
+                font-size: 1.8rem; /* Scaled title size for sm */
+                letter-spacing: 2px; /* Scaled letter spacing */
+            }
+            .sci-fi-subtitle {
+                font-size: 0.75rem; /* Scaled subtitle size for sm */
+                letter-spacing: 1.2px; /* Scaled letter spacing */
+            }
+            .tech-input {
+                font-size: 0.8rem; /* Scaled input font size for sm */
+                padding: 0.9rem; /* Scaled input padding for sm */
+            }
+            .send-button {
+                font-size: 0.8rem; /* Scaled button font size for sm */
+                padding: 0.5rem 1.6rem; /* Scaled button padding for sm */
+            }
+            .avatar {
+                width: 30px; /* Scaled avatar size for sm */
+                height: 30px;
+                font-size: 0.7rem; /* Scaled avatar font size for sm */
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .tech-container {
+                padding: 35px; /* Scaled padding for medium screens */
+                max-width: 650px; /* Increased max width */
+            }
+            .sci-fi-title {
+                font-size: 2.2rem; /* Scaled title size for md */
+                letter-spacing: 3px; /* Scaled letter spacing */
+            }
+            .sci-fi-subtitle {
+                font-size: 0.9rem; /* Scaled subtitle size for md */
+                letter-spacing: 1.5px; /* Scaled letter spacing */
+            }
+            .tech-input {
+                font-size: 0.9rem; /* Scaled input font size for md */
+                padding: 1.1rem; /* Scaled input padding for md */
+            }
+            .send-button {
+                font-size: 0.9rem; /* Scaled button font size for md */
+                padding: 0.6rem 1.8rem; /* Scaled button padding for md */
+            }
+            .avatar {
+                width: 35px; /* Scaled avatar size for md */
+                height: 35px;
+                font-size: 0.8rem; /* Scaled avatar font size for md */
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .tech-container {
+                padding: 40px; /* Scaled padding for large screens */
+                max-width: 800px; /* Increased max width for desktop */
+            }
+            .sci-fi-title {
+                font-size: 2.6rem; /* Scaled title size for lg */
+                letter-spacing: 3.5px; /* Scaled letter spacing */
+            }
+            .sci-fi-subtitle {
+                font-size: 1.0rem; /* Scaled subtitle size for lg */
+                letter-spacing: 1.7px; /* Scaled letter spacing */
+            }
+            .tech-input {
+                font-size: 1.0rem; /* Scaled input font size for lg */
+                padding: 1.2rem; /* Scaled input padding for lg */
+            }
+            .send-button {
+                font-size: 1.0rem; /* Scaled button font size for lg */
+                padding: 0.7rem 2.0rem; /* Scaled button padding for lg */
+            }
+            .avatar {
+                width: 40px; /* Scaled avatar size for lg */
+                height: 40px;
+                font-size: 0.9rem; /* Scaled avatar font size for lg */
+            }
+        }
+        @media (min-width: 1280px) { /* xl breakpoint - for very large screens */
+            .tech-container {
+                padding: 50px; /* Scaled padding for extra large screens */
+                max-width: 950px; /* Increased max-width for very large screens */
+            }
+            .sci-fi-title {
+                font-size: 3.0rem; /* Scaled max title size for xl */
+                letter-spacing: 4px; /* Scaled letter spacing */
+            }
+            .sci-fi-subtitle {
+                font-size: 1.2rem; /* Scaled max subtitle size for xl */
+                letter-spacing: 2px; /* Scaled letter spacing */
+            }
+            .tech-input {
+                font-size: 1.1rem; /* Scaled max input font size for xl */
+                padding: 1.5rem; /* Scaled max input padding for xl */
+            }
+            .send-button {
+                font-size: 1.1rem; /* Scaled max button font size for xl */
+                padding: 0.8rem 2.5rem; /* Scaled max button padding for xl */
+            }
+            .avatar {
+                width: 45px; /* Scaled max avatar size for xl */
+                height: 45px;
+                font-size: 1.0rem; /* Scaled max avatar font size for xl */
+            }
+        }
+
+        /* Dynamic grid overlay inside main container */
+        .tech-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to right, rgba(0, 255, 255, 0.08) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 50px 50px; /* Scaled grid cell size */
+            animation: gridPan 200s linear infinite; /* Even slower, continuous grid panning animation */
+            z-index: -1; /* Below content */
+            opacity: 0.18; /* Slightly higher transparency for more presence */
+            pointer-events: none;
+        }
+
+        @keyframes gridPan {
+            0% { background-position: 0 0; }
+            100% { background-position: 5000px 5000px; } /* Scaled panning distance */
+        }
+
+        /* Title text glow */
+        .sci-fi-title {
+            color: #00FFFF; /* Pure Cyan Title */
+            text-shadow: 0 0 30px #00FFFF, 0 0 60px rgba(0, 255, 255, 1.2), 0 0 85px rgba(0, 255, 255, 1); /* Scaled strong title glow - Cyan */
+            font-weight: 900; /* Extremely bold font */
+        }
+        .sci-fi-subtitle {
+            color: #E0FFFF; /* Light Cyan subtitle */
+            text-shadow: 0 0 12px #E0FFFF; /* Scaled subtitle glow - Light Cyan */
+        }
+        /* Input field styles */
+        .tech-input {
+            background-color: #0A001F; /* Dark Purple-Blue background */
+            border-color: #2F005F; /* Darker Purple-Blue border */
+            color: #E0FFFF; /* Light Cyan text */
+            transition: all 0.4s ease-in-out;
+            box-shadow: inset 0 0 25px rgba(0, 255, 255, 0.5); /* Scaled inner shadow - Cyan */
+            border-radius: 2.5rem; /* R-angle for input */
+            letter-spacing: 0.8px; /* Scaled letter spacing */
+        }
+        .tech-input::placeholder {
+            color: #BDD4FF; /* Brighter, subtle cool placeholder color */
+        }
+        .tech-input:focus {
+            border-color: #00FFFF; /* Focus border color extremely bright - Pure Cyan */
+            box-shadow: 0 0 0 10px rgba(0, 255, 255, 0.9), inset 0 0 40px rgba(0, 255, 255, 0.9); /* Scaled strong focus glow - Cyan */
+            background-color: #1F003F; /* Even darker purple-blue on focus */
+        }
+        /* Chat area background texture (remains distinct from main container grid) */
+        .chat-messages {
+            position: relative; /* Needed for pseudo-element positioning */
+            background-color: transparent; /* Make it transparent to show pseudo-element background */
+            /* Existing styles */
+            flex-grow: 1;
+            overflow-y: auto;
+            space-y: 4;
+            padding: 1rem; /* Adjusted Tailwind p-4 to 1rem */
+            margin-bottom: 1rem; /* Adjusted Tailwind mb-4 to 1rem */
+            border-radius: 1rem; /* R-angle for chat messages area */
+            border: 1px solid #4F008F; /* Dark Purple border */
+        }
+
+        .chat-messages::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right, rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; /* Smaller, denser grid for chat area */
+            animation: chatGridPan 120s linear infinite; /* Slower animation for chat area */
+            z-index: -1; /* Behind chat messages */
+            opacity: 0.1; /* Very subtle opacity */
+            pointer-events: none;
+            filter: blur(0.3px); /* Slightly blur the grid */
+        }
+
+        @keyframes chatGridPan {
+            from { background-position: 0 0; }
+            to { background-position: 3000px 3000px; } /* Sufficiently long panning distance */
+        }
+
+
+        /* Avatar sci-fi look */
+        .avatar {
+            background: linear-gradient(45deg, #00FFFF, #CCFFFF); /* Cyan gradient avatar */
+            border: 4px solid rgba(255, 255, 255, 0.9); /* Scaled border */
+            box-shadow: 0 0 30px rgba(0, 255, 255, 1.8); /* Scaled strong glow - Cyan */
+            transition: all 0.4s ease-in-out;
+            text-shadow: 0 0 7px #fff; /* Scaled text shadow */
+            border-radius: 50%; /* Ensure perfect circle */
+        }
+        .avatar:hover {
+            transform: scale(1.15); /* Scaled zoom effect */
+            box-shadow: 0 0 45px rgba(0, 255, 255, 2.2); /* Scaled extreme glow - Cyan */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+
+    <!-- Main container -->
+    <div class="bg-white rounded-2xl shadow-xl w-full flex flex-col h-[calc(100vh-40px)] tech-container">
+        <!-- Main title and subtitle -->
+        <h1 class="sci-fi-title mb-0 text-center">量子 AI 核心</h1>
+        <p class="sci-fi-subtitle text-center mb-6">协议版本 4.0.3Ω (最终迭代)</p>
+
+        <!-- Chat messages area -->
+        <div id="chatMessages" class="flex-grow overflow-y-auto space-y-4 p-4 mb-4 rounded-xl border border-gray-700">
+            <!-- Initial AI message -->
+            <div class="flex items-start">
+                <div class="flex-shrink-0 avatar flex items-center justify-center text-white font-bold mr-2">AI</div>
+                <div class="ai-message max-w-[80%] p-4 rounded-3xl">
+                    <p>指令接收：就绪。我是量子核心单元，请指定您的查询或任务。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input area, Send and Clear Chat buttons -->
+        <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <input
+                type="text"
+                id="userInput"
+                placeholder="输入指令或数据查询..."
+                class="flex-grow p-4 rounded-full focus:outline-none focus:ring-2 tech-input w-full sm:w-auto"
+                onkeypress="handleKeyPress(event)"
+            />
+            <div class="flex space-x-4 w-full sm:w-auto">
+                <button
+                    id="sendButton"
+                    class="send-button text-white py-3 px-6 rounded-full font-semibold flex-shrink-0 w-1/2 sm:w-auto"
+                    onclick="sendMessage()"
+                >
+                    发送
+                </button>
+                <button
+                    id="clearChatButton"
+                    class="send-button text-white py-3 px-6 rounded-full font-semibold flex-shrink-0 w-1/2 sm:w-auto"
+                    onclick="clearChat()"
+                >
+                    清空聊天
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="hidden text-center text-gray-400 mt-4">
+            <div class="inline-block loading-spinner rounded-full border-4 border-t-4"></div>
+            <p class="mt-2 text-blue-300 font-medium">量子数据流正在分析...</p>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const clearChatButton = document.getElementById('clearChatButton'); // Get clear chat button
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // Initial message content
+        const initialAiMessage = '指令接收：就绪。我是量子核心单元，请指定您的查询或任务。';
+
+        // Function to add a message to the chat interface
+        function addMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            // Set message alignment based on sender
+            messageDiv.className = `flex items-start ${sender === 'user' ? 'justify-end' : ''}`;
+
+            const contentDiv = document.createElement('div');
+            // Set message bubble style based on sender
+            contentDiv.className = `max-w-[80%] p-4 rounded-3xl shadow-sm ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+            contentDiv.innerHTML = `<p>${message}</p>`;
+
+            // Add avatar and content based on sender
+            if (sender === 'ai') {
+                const aiAvatar = document.createElement('div');
+                aiAvatar.className = 'flex-shrink-0 avatar flex items-center justify-center text-white font-bold text-sm mr-2';
+                aiAvatar.textContent = 'AI';
+                messageDiv.appendChild(aiAvatar);
+                messageDiv.appendChild(contentDiv); // Add content after AI avatar
+            } else { // sender === 'user'
+                const userAvatar = document.createElement('div');
+                userAvatar.className = 'flex-shrink-0 avatar flex items-center justify-center text-white font-bold text-sm ml-2';
+                userAvatar.textContent = '您';
+                messageDiv.appendChild(contentDiv); // Add content before user avatar
+                messageDiv.appendChild(userAvatar);
+            }
+
+            chatMessages.appendChild(messageDiv);
+            // Scroll to the latest message
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to clear all messages
+        function clearChat() {
+            chatMessages.innerHTML = ''; // Clear all child elements
+            addMessage('ai', initialAiMessage); // Add back the initial AI message
+        }
+
+        // Function to handle Enter key press for sending message
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Function to send message
+        async function sendMessage() {
+            const prompt = userInput.value.trim();
+            if (prompt === '') return;
+
+            addMessage('user', prompt); // Add user message to interface
+            userInput.value = ''; // Clear input field
+
+            loadingIndicator.classList.remove('hidden'); // Show loading indicator
+            sendButton.disabled = true; // Disable send button
+            sendButton.textContent = '发送中...'; // Change button text
+            clearChatButton.disabled = true; // Disable clear chat button
+            userInput.disabled = true; // Disable input field
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas will automatically provide API key at runtime
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const aiResponse = result.candidates[0].content.parts[0].text;
+                    addMessage('ai', aiResponse); // Add AI response to interface
+                } else {
+                    addMessage('ai', '抱歉，未能获取到有效的回复。');
+                }
+            } catch (error) {
+                console.error('API 调用失败:', error);
+                addMessage('ai', '抱歉，在与 AI 通信时发生错误，请稍后再试。');
+            } finally {
+                loadingIndicator.classList.add('hidden'); // 隐藏加载指示器
+                sendButton.disabled = false; // 启用发送按钮
+                sendButton.textContent = '发送'; // 恢复按钮文本
+                clearChatButton.disabled = false; // 启用清空聊天按钮
+                userInput.disabled = false; // 启用输入框
+                userInput.focus(); // 重新聚焦输入框
+            }
+        }
+    </script>
+</body>
+</html>
