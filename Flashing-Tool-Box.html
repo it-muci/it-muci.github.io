@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android 工具箱 - 简化您的设备管理</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0e10; /* Slightly darker, more muted background */
+            color: #e0e0e0;
+            overflow-x: hidden;
+            /* Subtle background pattern for texture */
+            background-image: radial-gradient(circle at 1px 1px, rgba(42, 42, 42, 0.1) 1px, transparent 0); /* Even softer dots, less opaque */
+            background-size: 25px 25px; /* Slightly larger pattern for subtlety */
+            background-attachment: fixed;
+            line-height: 1.8; /* Further improved readability */
+            font-size: 17px; /* Slightly larger base font size for comfort, will be overridden by Tailwind where applicable */
+            padding-top: 100px; /* Adjusted padding-top for header height */
+        }
+        .container {
+            max-width: 1200px;
+            padding-left: 1.5rem; /* Default horizontal padding */
+            padding-right: 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .container {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .container {
+                padding-left: 3rem;
+                padding-right: 3rem;
+            }
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 999;
+            background-color: #0f1012; /* Matches overall dark theme */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6); /* Deeper, softer shadow for header */
+            padding: 1.5rem 2rem; /* Adjusted padding to better fit height */
+            transition: background-color 0.3s ease-in-out; /* Smooth transition for potential future scroll effects */
+        }
+
+        .hero-section {
+            background: linear-gradient(to right, #1a202c, #2d3748); /* Dark blue gradient */
+            text-align: center;
+            border-bottom-left-radius: 50px; /* Original rounded corners */
+            border-bottom-right-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Original shadow */
+            position: relative;
+            z-index: 2;
+            min-height: calc(100vh - 100px); /* Full viewport height minus header height */
+            display: flex; /* Enable flexbox */
+            flex-direction: column; /* Stack children vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+            padding: 2rem 0; /* Add some padding even with min-height for spacing on smaller screens */
+        }
+        .hero-section h2 {
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        .section-heading {
+            /* Responsive text size for headings */
+            @apply text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-400 mb-10 sm:mb-16; /* Increased margin-bottom, responsive */
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.6); /* Stronger text shadow for headings */
+        }
+
+        .feature-card {
+            background-color: #1f2226; /* Darker than section bg, for contrast */
+            border-radius: 2.5rem; /* Even more rounded */
+            padding: 2.5rem; /* Responsive padding */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); /* Deeper initial shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother, more defined transition */
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #3d4652; /* Softer border */
+            background-clip: padding-box;
+            z-index: 1;
+        }
+        /* Gradient border glow effect on hover */
+        .feature-card:before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            z-index: -1;
+            margin: -5px; /* Wider glowing border */
+            border-radius: inherit;
+            background: linear-gradient(45deg, #60a5fa, #3b82f6, #a855f7, #c084fc); /* More colors in gradient */
+            opacity: 0;
+            filter: blur(15px); /* More blur for glow effect */
+            transition: opacity 0.6s ease-in-out, filter 0.6s ease-in-out; /* Slower transition for glow */
+        }
+        .feature-card:hover:before {
+            opacity: 1;
+            filter: blur(0px); /* Remove blur when hovered, for sharper gradient */
+        }
+        .feature-card .fas {
+            font-size: 4rem; /* Responsive icon size */
+            margin-bottom: 2rem; /* Adjusted margin-bottom for icons */
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother icon animation */
+            color: #60a5fa; /* Default blue icon color */
+        }
+        @media (min-width: 640px) {
+            .feature-card {
+                padding: 3.5rem; /* Larger padding on wider screens */
+            }
+            .feature-card .fas {
+                font-size: 5.5rem; /* Larger icons on wider screens */
+                margin-bottom: 2.5rem;
+            }
+        }
+        .feature-card:hover .fas {
+            transform: translateY(-15px) scale(1.25); /* More dynamic movement and scale */
+            color: #a855f7; /* Change icon color to purple on hover */
+        }
+        /* Title and paragraph adjustments */
+        .feature-card h4 {
+            font-size: 1.75rem; /* Responsive title size */
+            font-weight: bold;
+            margin-bottom: 1rem; /* Adjusted margin */
+            color: #ffffff;
+        }
+        @media (min-width: 640px) {
+            .feature-card h4 {
+                font-size: 2rem; /* Larger titles on wider screens */
+                margin-bottom: 1.25rem;
+            }
+        }
+        .feature-card p {
+            font-size: 1rem; /* Responsive text size for readability */
+            line-height: 1.8; /* More spacing for comfort */
+            color: #c0c0c0; /* Slightly lighter gray for body text */
+        }
+        @media (min-width: 640px) {
+            .feature-card p {
+                font-size: 1.1rem; /* Larger text on wider screens */
+            }
+        }
+        .feature-card:hover {
+            transform: scale(1.06); /* Slightly more pronounced scale */
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); /* Even deeper shadow on card hover */
+        }
+
+
+        .download-button {
+            /* Responsive text size and padding */
+            @apply bg-gradient-to-r from-green-500 to-green-700 text-white text-xl sm:text-2xl font-bold py-4 px-8 sm:py-5 sm:px-10 rounded-full shadow-xl hover:from-green-600 hover:to-green-800 transition-all duration-300 transform hover:scale-110 active:scale-95;
+            letter-spacing: normal; /* Restore normal letter spacing */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Original shadow */
+        }
+        .download-button:hover {
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5); /* Original hover shadow */
+        }
+        .footer-link {
+            @apply text-blue-300 hover:text-blue-400 underline transition duration-200;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-60px); } /* Start even higher */
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-25px); } /* Even more pronounced bounce */
+            60% { transform: translateY(-12px); }
+        }
+
+        .animate-fade-in-down {
+            animation: fadeInDown 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; /* Smoother animation curve */
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; /* Smoother animation curve */
+        }
+
+        .animate-bounce {
+            animation: bounce 3s infinite; /* Slower, more impactful bounce */
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 6px solid rgba(255, 255, 255, 0.15); /* Thicker, softer spinner border */
+            border-top: 6px solid #60a5fa; /* Blue spinner */
+            border-radius: 50%;
+            width: 60px; /* Larger spinner */
+            height: 60px;
+            animation: spin 1.2s linear infinite; /* Slightly slower spin */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Section backgrounds for layering */
+        section {
+            padding-top: 5rem; /* Responsive padding between sections */
+            padding-bottom: 5rem; /* Responsive padding between sections */
+            /* Adjusted inner shadows for softer effect */
+            box-shadow: inset 0 10px 40px rgba(0,0,0,0.4), inset 0 -10px 40px rgba(0,0,0,0.4); /* Deeper, softer inner shadow */
+        }
+        @media (min-width: 640px) {
+            section {
+                padding-top: 8rem;
+                padding-bottom: 8rem;
+            }
+        }
+        section#about { background-color: #101215; } /* Slightly distinct background for sections */
+        section#features { background-color: #16181b; }
+        section#download { background-color: #101215; }
+        section#contact { background-color: #16181b; }
+
+
+        /* Logo SVG Styling */
+        .android-logo {
+            width: 120px; /* Responsive size */
+            height: 120px;
+            background-color: #1f2226; /* Darker background for the logo circle */
+            border-radius: 50%;
+            padding: 20px; /* More padding inside the circle */
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.8); /* Deeper shadow */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid #3d4652; /* Subtle border for logo */
+        }
+        @media (min-width: 640px) {
+            .android-logo {
+                width: 180px; /* Larger on wider screens */
+                height: 180px;
+                padding: 25px;
+            }
+        }
+        .android-logo:hover {
+            transform: scale(1.1); /* More pronounced hover effect */
+        }
+        .android-logo svg {
+            width: 100%;
+            height: 100%;
+        }
+        .android-logo .head-circle {
+            fill: #a4c639; /* Android green */
+        }
+        .android-logo .body-rect {
+            fill: #a4c639; /* Android green */
+        }
+        .android-logo .antenna {
+            stroke: #a4c639; /* Android green */
+            stroke-width: 10;
+            stroke-linecap: round;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gray-900 shadow-2xl py-7 px-8">
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-blue-400 tracking-wide mb-4 sm:mb-0">Android 工具箱</h1>
+            <nav class="w-full sm:w-auto">
+                <ul class="flex flex-wrap justify-center sm:justify-end gap-x-4 sm:gap-x-8">
+                    <li><a href="#about" class="text-gray-300 hover:text-white font-medium transition duration-200 text-base sm:text-lg">关于</a></li>
+                    <li><a href="#features" class="text-gray-300 hover:text-white font-medium transition duration-200 text-base sm:text-lg">功能</a></li>
+                    <li><a href="#download" class="text-gray-300 hover:text-white font-medium transition duration-200 text-base sm:text-lg">下载</a></li>
+                    <li><a href="#contact" class="text-gray-300 hover:text-white font-medium transition duration-200 text-base sm:text-lg">联系我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 animate-fade-in-down">
+                一站式 Android 设备管理工具
+            </h2>
+            <p class="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto mb-10 animate-fade-in" style="animation-delay: 0.5s;">
+                通用刷机工具，让您的 Android 设备管理、刷机和维护变得前所未有的简单和安全。
+            </p>
+            <a href="#download" class="download-button animate-bounce" style="animation-delay: 1s;">
+                <i class="fas fa-download mr-4"></i>立即下载
+            </a>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+        <!-- Content will be dynamically loaded here by JavaScript -->
+        <div class="text-center py-20">
+            <div class="spinner mx-auto mb-5"></div>
+            <p class="text-gray-400 text-xl">正在加载内容...</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-12 px-8 text-sm text-gray-500 text-center border-t border-gray-700 relative z-10">
+        <p>&copy; <span id="currentYearPlaceholder"></span> Android 工具箱. All rights reserved.</p>
+        <p class="mt-2">由 慕辞 设计与开发。</p>
+    </footer>
+
+    <script>
+        // Define different section HTML content as JavaScript strings
+        const contentSections = {
+            about: `
+                <section id="about" class="py-20 sm:py-28 section-odd"> <!-- Responsive padding -->
+                    <div class="container mx-auto px-4">
+                        <h3 class="section-heading">关于我们</h3>
+                        <p class="text-base sm:text-lg text-gray-400 max-w-4xl mx-auto leading-relaxed text-center mb-10 sm:mb-14"> <!-- Responsive text size and margin -->
+                            Android 工具箱（通用刷机工具）是一款为 Android 设备用户设计的强大图形化工具。
+                            它集成了 ADB (Android Debug Bridge) 和 Fastboot 的核心功能，旨在为用户提供一个直观、
+                            易用的界面，简化复杂的设备操作流程，无论是设备调试、系统更新、数据备份，
+                            还是更高级的刷机操作，都能轻松应对。
+                        </p>
+                        <div class="flex flex-col sm:flex-row justify-center items-center space-y-8 sm:space-y-0 sm:space-x-10"> <!-- Responsive layout and spacing -->
+                            <div class="android-logo">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path class="body-rect" d="M7 16V10H17V16C17 17.1046 16.1046 18 15 18H9C7.89543 18 7 17.1046 7 16Z" />
+                                    <path class="head-circle" d="M12 2C9.23858 2 7 4.23858 7 7V10H17V7C17 4.23858 14.7614 2 12 2Z" />
+                                    <path class="antenna" d="M8.5 2L7 4M15.5 2L17 4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xl sm:text-2xl font-semibold text-white mb-3">开发者: 慕辞</p> <!-- Responsive text size -->
+                                <a href="https://github.com/it-muci/Flashing-Tool-Box" target="_blank" rel="noopener noreferrer" class="footer-link text-lg sm:text-xl"> <!-- Responsive text size -->
+                                    <i class="fab fa-github mr-2"></i>GitHub 项目页面
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `,
+            features: `
+                <section id="features" class="py-20 sm:py-28 section-even"> <!-- Responsive padding -->
+                    <div class="container mx-auto px-4">
+                        <h3 class="section-heading">核心功能</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10"> <!-- Responsive gap -->
+                            <div class="feature-card">
+                                <i class="fas fa-mobile-alt mb-6"></i>
+                                <h4 class="font-bold mb-3 text-white">设备状态与控制</h4>
+                                <p class="text-gray-300 leading-relaxed">实时监控设备连接状态，一键重启至系统、Bootloader 或 Recovery 模式，轻松关机。</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-cloud-upload-alt mb-6"></i>
+                                <h4 class="font-bold mb-3 text-white">备份与恢复</h4>
+                                <p class="text-gray-300 leading-relaxed">安全备份设备数据，并在需要时轻松恢复，保护您的重要信息。</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-microchip mb-6"></i>
+                                <h4 class="font-bold mb-3 text-white">刷机与更新</h4>
+                                <p class="text-gray-300 leading-relaxed">支持 Fastboot 和 ADB Sideload 模式刷入固件，简化系统升级和自定义 ROM 的过程。</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-th-large mb-6"></i>
+                                <h4 class="font-bold mb-3 text-white">应用管理</h4>
+                                <p class="text-gray-300 leading-relaxed">方便地查看、安装、卸载和提取设备上的应用程序。</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-tools mb-6"></i>
+                                <h4 class="font-bold mb-3 text-white">高级工具</h4>
+                                <p class="text-gray-300 leading-relaxed">提供截图、屏幕录制、文件推送和拉取等高级功能，满足您更多需求。</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-shield-alt mb-6"></i>
+                                <h4 class="font-bold mb-3 text-white">Bootloader 管理</h4>
+                                <p class="text-gray-300 leading-relaxed">安全地解锁或锁定设备的 Bootloader，但请务必谨慎操作。</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `,
+            download: `
+                <section id="download" class="py-20 sm:py-28 section-odd"> <!-- Responsive padding -->
+                    <div class="container mx-auto px-4 text-center">
+                        <h3 class="section-heading">立即下载</h3>
+                        <p class="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8 sm:mb-12"> <!-- Responsive text size and margin -->
+                            选择适合您操作系统的版本，开始简化您的 Android 设备管理之旅！
+                        </p>
+                        <div class="flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-10"> <!-- Responsive layout and spacing -->
+                            <a href="#" class="download-button">
+                                <i class="fab fa-windows mr-3"></i> Windows 版 (敬请期待)
+                            </a>
+                            <a href="#" class="download-button">
+                                <i class="fab fa-apple mr-3"></i> macOS 版 (敬请期待)
+                            </a>
+                            <a href="#" class="download-button">
+                                <i class="fab fa-linux mr-3"></i> Linux 版 (敬请期待)
+                            </a>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-8 sm:mt-12"> <!-- Responsive text size and margin -->
+                            注意：此页面为模拟展示，实际下载链接将根据软件发布情况更新。
+                        </p>
+                    </div>
+                </section>
+            `,
+            contact: `
+                <section id="contact" class="py-20 sm:py-28 section-even"> <!-- Responsive padding -->
+                    <div class="container mx-auto px-4 text-center">
+                        <h3 class="section-heading">联系我们</h3>
+                        <p class="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8 sm:mb-12"> <!-- Responsive text size and margin -->
+                            如果您有任何问题、建议或合作意向，请通过以下方式与我们联系。
+                        </p>
+                        <div class="flex justify-center space-x-8 sm:space-x-10 text-3xl sm:text-4xl text-gray-300"> <!-- Responsive icon size and spacing -->
+                            <a href="mailto:it-muci@example.com" class="hover:text-blue-400 transition duration-200">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            <a href="https://github.com/it-muci/Flashing-Tool-Box" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400 transition duration-200">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <!-- Add more social media links if applicable -->
+                        </div>
+                    </div>
+                </section>
+            `
+        };
+
+        const mainContentDiv = document.getElementById('main-content');
+        let currentLoadedSection = ''; // To prevent redundant loading
+
+        /**
+         * Loads content into the main-content div using a simulated AJAX approach.
+         * @param {string} sectionId - The ID of the section to load (e.g., 'about', 'features').
+         * @param {boolean} doScroll - Whether to scroll to the loaded section. Defaults to true.
+         */
+        function loadContent(sectionId, doScroll = true) {
+            if (currentLoadedSection === sectionId) {
+                // If the same section is already loaded and scrolling is requested, just scroll to it
+                if (doScroll) {
+                    setTimeout(() => {
+                        const targetSection = document.getElementById(sectionId);
+                        if (targetSection) {
+                            targetSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }, 0);
+                }
+                return;
+            }
+
+            // Show loading indicator
+            mainContentDiv.innerHTML = `
+                <div class="text-center py-20">
+                    <div class="spinner mx-auto mb-5"></div>
+                    <p class="text-gray-400 text-xl">正在加载内容...</p>
+                </div>
+            `;
+            currentLoadedSection = ''; // Clear current section while loading
+
+            // Simulate network request delay
+            setTimeout(() => {
+                const content = contentSections[sectionId];
+                if (content) {
+                    mainContentDiv.innerHTML = content;
+                    currentLoadedSection = sectionId;
+                    // Optional: update URL hash for direct linking/bookmarking
+                    history.pushState(null, '', `#${sectionId}`);
+                    // Scroll to the loaded content smoothly only if doScroll is true
+                    if (doScroll) {
+                        setTimeout(() => {
+                            const loadedSectionElement = document.getElementById(sectionId);
+                            if (loadedSectionElement) {
+                                loadedSectionElement.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }, 0);
+                    }
+                } else {
+                    mainContentDiv.innerHTML = `
+                        <p class="text-center text-red-400 text-lg">加载内容失败: 未知部分。</p>
+                    `;
+                }
+            }, 800); // Simulate an 800ms load time
+        }
+
+        // Event listener for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault(); // Prevent default hash jump
+                const sectionId = this.getAttribute('href').substring(1);
+                loadContent(sectionId, true); // Always scroll when a nav link is clicked
+            });
+        });
+
+        // Set current year in footer
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYearPlaceholder').textContent = new Date().getFullYear();
+
+            // Load default content on page load (e.g., 'about' section) without scrolling
+            const initialSection = window.location.hash.substring(1) || 'about';
+            loadContent(initialSection, false); // Pass false for initial load to prevent scrolling
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', () => {
+            const sectionFromHash = window.location.hash.substring(1) || 'about';
+            loadContent(sectionFromHash, true); // Always scroll on popstate
+        });
+    </script>
+</body>
+</html>
