@@ -22,6 +22,7 @@
             align-items: center; /* Center the app window vertically */
             min-height: 100vh; /* Ensure body takes full viewport height */
             padding: 20px; /* Padding around the app window */
+            transition: all 0.3s ease-in-out; /* Smooth transition for sidebar reveal */
         }
 
         /* Main application window container */
@@ -52,7 +53,7 @@
             border-top-right-radius: 12px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: space-between; /* Use space-between to push items to edges */
             font-size: 0.95rem;
             color: #b0b0b0;
         }
@@ -71,11 +72,27 @@
         .window-controls .minimize { background-color: #ffbd2e; }
         .window-controls .maximize { background-color: #27c93f; }
 
+        /* Mobile menu button */
+        .menu-button {
+            display: block; /* Show on mobile by default */
+            font-size: 1.5rem;
+            color: #e0e0e0;
+            cursor: pointer;
+            z-index: 1001; /* Above other content */
+            padding: 5px;
+        }
+        @media (min-width: 768px) {
+            .menu-button {
+                display: none; /* Hide on larger screens */
+            }
+        }
+
         /* Main content area within the app window */
         .app-content-area {
             display: flex;
             flex-grow: 1; /* Allows content area to fill remaining space */
             overflow: hidden; /* For inner scrolling content */
+            position: relative; /* For sidebar overlay */
         }
 
         /* Sidebar navigation */
@@ -88,10 +105,23 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0; /* Prevent shrinking */
+            z-index: 1000; /* Ensure sidebar is above main content */
         }
-        @media (max-width: 767px) { /* Hide sidebar on small screens, will be toggleable */
+        @media (max-width: 767px) { /* Mobile specific styles for sidebar */
             .app-sidebar {
-                display: none; /* Hidden by default on mobile, can add a toggle button */
+                position: fixed; /* Fixed position for overlay */
+                top: 0;
+                left: 0;
+                width: 70%; /* Takes 70% width on mobile */
+                height: 100%;
+                transform: translateX(-100%); /* Start off-screen */
+                transition: transform 0.3s ease-in-out;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+                padding-top: 80px; /* Space for title bar */
+                border-right: none; /* Remove border when it's an overlay */
+            }
+            .app-window.sidebar-open .app-sidebar {
+                transform: translateX(0); /* Slide in */
             }
         }
 
@@ -121,12 +151,34 @@
             font-weight: 600;
         }
 
+        /* Overlay when sidebar is open on mobile */
+        .sidebar-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            z-index: 999; /* Below sidebar, above content */
+        }
+        .app-window.sidebar-open .sidebar-overlay {
+            display: block;
+        }
+
         /* Main content scrollable area */
         .main-scroll-content {
             flex-grow: 1;
             overflow-y: auto; /* Enable scrolling for content */
             padding: 2rem; /* Consistent padding */
             background-color: #2c2c2c; /* Matches app window background */
+        }
+        @media (max-width: 767px) {
+            .main-scroll-content {
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-top: 1rem; /* Adjust padding for mobile to avoid clash with fixed sidebar */
+            }
         }
 
         /* Hero section, adapted for app style */
@@ -135,23 +187,51 @@
             box-shadow: none; /* No box shadow */
             border-radius: 0; /* No special border-radius */
             min-height: auto; /* Let content dictate height */
-            padding: 4rem 0; /* Adjusted padding */
+            padding: 2rem 0; /* Adjusted padding for mobile */
+            text-align: center;
+        }
+        @media (min-width: 640px) {
+            .hero-section {
+                padding: 4rem 0; /* Adjusted padding for desktop */
+            }
         }
         .hero-section h2 {
             text-shadow: none; /* Remove text shadow */
             color: #e0e0e0; /* Match main text color */
+            font-size: 2.5rem; /* Smaller hero title on mobile */
+            line-height: 1.2;
         }
+        @media (min-width: 640px) {
+            .hero-section h2 {
+                font-size: 3.5rem; /* Larger hero title on tablet/desktop */
+            }
+        }
+        .hero-section p {
+            font-size: 0.95rem; /* Smaller hero paragraph on mobile */
+        }
+        @media (min-width: 640px) {
+            .hero-section p {
+                font-size: 1.1rem; /* Larger hero paragraph on tablet/desktop */
+            }
+        }
+
         .section-heading {
             @apply text-3xl sm:text-4xl lg:text-5xl font-semibold text-blue-400 mb-8 sm:mb-12; /* Font weight adjusted, mb adjusted */
             text-shadow: none; /* Remove text shadow */
             color: #007aff; /* macOS blue for headings */
+            font-size: 2rem; /* Smaller section heading on mobile */
+        }
+        @media (min-width: 640px) {
+            .section-heading {
+                font-size: 2.5rem; /* Larger section heading on tablet/desktop */
+            }
         }
 
         /* Feature card styling */
         .feature-card {
             background-color: #383838; /* Card background */
             border-radius: 10px; /* Softer rounded corners */
-            padding: 2rem; /* Adjusted padding */
+            padding: 1.5rem; /* Adjusted padding for mobile */
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Lighter, more subtle shadow */
             border: 1px solid #4a4a4a; /* Subtle border */
             transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; /* Smoother transitions */
@@ -166,30 +246,58 @@
             background-color: #444444; /* Slightly lighter on hover */
         }
         .feature-card .fas {
-            font-size: 3.5rem; /* Slightly smaller icons */
-            margin-bottom: 1.5rem;
+            font-size: 3rem; /* Slightly smaller icons for mobile */
+            margin-bottom: 1rem;
             color: #007aff; /* macOS blue for icons */
             transition: color 0.2s ease;
+        }
+        @media (min-width: 640px) {
+            .feature-card {
+                padding: 2rem; /* Adjusted padding for desktop */
+            }
+            .feature-card .fas {
+                font-size: 3.5rem; /* Larger icons for desktop */
+                margin-bottom: 1.5rem;
+            }
         }
         .feature-card:hover .fas {
             transform: none; /* Remove previous icon movement */
             color: #60a5fa; /* Lighter blue on hover */
         }
         .feature-card h4 {
-            font-size: 1.5rem; /* Adjusted title size */
+            font-size: 1.3rem; /* Adjusted title size for mobile */
             font-weight: 600; /* Medium bold */
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             color: #ffffff;
         }
+        @media (min-width: 640px) {
+            .feature-card h4 {
+                font-size: 1.5rem; /* Adjusted title size for desktop */
+                margin-bottom: 0.75rem;
+            }
+        }
         .feature-card p {
-            font-size: 0.95rem; /* Adjusted text size */
+            font-size: 0.9rem; /* Adjusted text size for mobile */
             color: #c0c0c0;
+        }
+        @media (min-width: 640px) {
+            .feature-card p {
+                font-size: 0.95rem; /* Adjusted text size for desktop */
+            }
         }
 
         /* Download button styling */
         .download-button {
             @apply bg-blue-600 text-white font-medium py-3 px-6 rounded-md shadow-md hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 active:scale-98; /* Flatter, macOS blue button */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Softer shadow */
+            font-size: 1rem; /* Smaller on mobile */
+            padding: 0.75rem 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .download-button {
+                font-size: 1.125rem; /* Larger on desktop */
+                padding: 0.75rem 2rem;
+            }
         }
         .download-button:hover {
             box-shadow: 0 7px 18px rgba(0, 0, 0, 0.3);
@@ -207,6 +315,13 @@
             border-bottom-right-radius: 12px;
             flex-shrink: 0; /* Prevent shrinking */
         }
+        @media (max-width: 767px) {
+             .app-footer {
+                border-bottom-left-radius: 0; /* Remove footer radius on mobile if sidebar covers it */
+                border-bottom-right-radius: 0;
+            }
+        }
+
 
         /* Loading spinner */
         .spinner {
@@ -218,8 +333,8 @@
 
         /* Section backgrounds now controlled by main-scroll-content bg */
         section {
-            padding-top: 3rem; /* Reduced padding */
-            padding-bottom: 3rem; /* Reduced padding */
+            padding-top: 2rem; /* Reduced padding for mobile sections */
+            padding-bottom: 2rem; /* Reduced padding for mobile sections */
             box-shadow: none; /* Remove section inner shadows */
             background-color: transparent; /* No specific section backgrounds */
         }
@@ -238,8 +353,8 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Softer shadow */
             border: 1px solid #4a4a4a; /* Subtle border */
             transition: transform 0.2s ease;
-            width: 100px; /* Smaller responsive size */
-            height: 100px;
+            width: 80px; /* Smaller responsive size for mobile */
+            height: 80px;
         }
         @media (min-width: 640px) {
             .android-logo {
@@ -265,19 +380,33 @@
     <div class="app-window">
         <!-- Application Title Bar -->
         <div class="app-title-bar">
-            <div class="window-controls">
-                <div class="close"></div>
-                <div class="minimize"></div>
-                <div class="maximize"></div>
+            <!-- Left Group: Window Controls (Desktop) & Menu Button (Mobile) -->
+            <div class="flex items-center gap-2">
+                <div class="window-controls hidden sm:flex">
+                    <div class="close"></div>
+                    <div class="minimize"></div>
+                    <div class="maximize"></div>
+                </div>
+                <button class="menu-button sm:hidden" id="menuButton" aria-label="Toggle Navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-            <span class="text-sm font-medium">Android 工具箱</span>
-            <div></div> <!-- Empty div for spacing -->
+
+            <!-- Centered Title -->
+            <span class="text-sm font-medium flex-grow text-center">Android 工具箱</span>
+
+            <!-- Right Spacer: Balances the left group for true centering -->
+            <!-- Approximate width of window controls on desktop, adjusted for mobile -->
+            <div class="app-title-bar-right-spacer w-[70px] sm:w-[70px]"></div>
         </div>
 
         <!-- App Content Area: Sidebar + Main Content -->
         <div class="app-content-area">
+            <!-- Sidebar Overlay for mobile -->
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
             <!-- Sidebar Navigation -->
-            <aside class="app-sidebar">
+            <aside class="app-sidebar" id="appSidebar">
                 <div class="flex items-center mb-10 pl-2">
                     <svg class="android-icon w-10 h-10 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="#A4C639" d="M7 16V10H17V16C17 17.1046 16.1046 18 15 18H9C7.89543 18 7 17.1046 7 16Z" />
@@ -429,7 +558,18 @@
         };
 
         const mainContentDiv = document.getElementById('main-content');
+        const menuButton = document.getElementById('menuButton');
+        const appWindow = document.querySelector('.app-window');
+        const appSidebar = document.getElementById('appSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
         let currentLoadedSection = ''; // To prevent redundant loading
+
+        /**
+         * Closes the sidebar.
+         */
+        function closeSidebar() {
+            appWindow.classList.remove('sidebar-open');
+        }
 
         /**
          * Loads content into the main-content div using a simulated AJAX approach.
@@ -437,6 +577,11 @@
          * @param {boolean} doScroll - Whether to scroll to the loaded section. Defaults to true.
          */
         function loadContent(sectionId, doScroll = true) {
+            // Close sidebar if open on mobile
+            if (window.innerWidth < 768) {
+                closeSidebar();
+            }
+
             if (currentLoadedSection === sectionId) {
                 // If the same section is already loaded and scrolling is requested, just scroll to it
                 if (doScroll) {
@@ -494,6 +639,16 @@
             }, 800); // Simulate an 800ms load time
         }
 
+        // Event listener for mobile menu button
+        menuButton.addEventListener('click', () => {
+            appWindow.classList.toggle('sidebar-open');
+        });
+
+        // Event listener for sidebar overlay to close sidebar
+        sidebarOverlay.addEventListener('click', () => {
+            closeSidebar();
+        });
+
         // Event listener for navigation links
         document.querySelectorAll('.app-sidebar nav a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -516,6 +671,13 @@
         window.addEventListener('popstate', () => {
             const sectionFromHash = window.location.hash.substring(1) || 'about';
             loadContent(sectionFromHash, true); // Always scroll on popstate
+        });
+
+        // Close sidebar if window is resized to desktop size while sidebar is open
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                closeSidebar();
+            }
         });
     </script>
 </body>
