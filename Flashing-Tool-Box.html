@@ -566,8 +566,27 @@
                 return detected;
             };
 
+            // New: View-source protocol check
+            const _viewSourceCheck = () => {
+                if (window.location.protocol === 'view-source:') {
+                    _origConsole.error('%c检测到非法查看源码！', 'color: red; font-size: 2em;');
+                    // Immediately redirect to the normal URL
+                    window.location.replace(window.location.href.replace('view-source:', ''));
+                    return true; // Indicate detection and action taken
+                }
+                return false;
+            };
+
             const _detectDevTools = () => {
                 const oldDevtoolsOpen = _devtoolsOpen;
+
+                // Check for view-source first, as it's a direct bypass attempt
+                if (_viewSourceCheck()) {
+                    _devtoolsOpen = true; // Assume devtools is open if view-source is active
+                    _startDebuggerLoop(); // Immediately trigger debugger
+                    _toggleConsoleBaiting(true); // Start console baiting
+                    return; // Stop further checks, action taken
+                }
 
                 // Method 1: Check window size difference
                 const sizeCheck = window.outerWidth - window.innerWidth > _sizeThreshold ||
