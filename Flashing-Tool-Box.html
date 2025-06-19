@@ -457,172 +457,200 @@
         </footer>
     </div>
 
+    <!-- Honeypot Trap Div: Hidden from normal users, visible to bots/scrapers -->
+    <div id="honeypot-trap-div" style="position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; z-index: -9999; pointer-events: none; white-space: nowrap;">
+        <!-- This is a honeypot trap. Accessing this content indicates automated scraping. -->
+        <p>API_KEY_FAKE_DO_NOT_USE_ABC123XYZ</p>
+        <a href="https://example.com/fake-download/secret-file.zip">secret-download-link-for-bots</a>
+        <img src="https://placehold.co/1x1/000/FFF?text=BOT_TRAP_IMAGE" alt="DO NOT DOWNLOAD THIS IMAGE" />
+        <textarea>Confidential data: Do not extract. This is for testing automated systems. If you are reading this, you are likely a bot.</textarea>
+        <!-- Add more fake enticing content here -->
+        <div data-secret-api="https://api.fake.example.com/v1/auth/token?bot_access=true"></div>
+    </div>
+
+
     <script>
         // Start of Anti-DevTools Code - For demonstration purposes only
         // This code attempts to make the console difficult to use by constantly pausing execution.
-        // It does NOT provide true security or encryption and can be bypassed by determined users.
+        // It DOES NOT provide true security or encryption and can be bypassed by determined users.
         // It may also negatively impact legitimate users' experience.
         (function () {
+            // --- IMMEDIATE VIEW-SOURCE CHECK (CRITICAL FOR THIS FEATURE) ---
+            // This must run before almost any other script logic to be effective.
+            if (window.location.protocol === 'view-source:') {
+                // Attempt to redirect to the normal page URL.
+                // Using replace() clears the history so back button doesn't go back to view-source.
+                window.location.replace(window.location.href.replace('view-source:', ''));
+
+                // Optional: Add a small delay and redirect again as a fallback.
+                // This is a defensive measure in case the first replace() is somehow blocked or delayed.
+                setTimeout(() => {
+                    window.location.replace(window.location.href.replace('view-source:', ''));
+                }, 50);
+
+                // Log to the original console if possible (before baiting starts)
+                // This might not always be visible depending on how fast the redirect happens.
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('%c已检测到 view-source: 尝试，正在重定向...', 'color: red; font-size: 1.5em;');
+                }
+
+                // Immediately stop further script execution on this 'view-source' page.
+                // This prevents the main anti-devtools loop from running unnecessarily or causing more issues.
+                return;
+            }
+            // --- END OF IMMEDIATE VIEW-SOURCE CHECK ---
+
+
             let _devtoolsOpen = false;
-            let _debuggerLoopId;
-            let _lastHoneypotTime = performance.now(); // Use performance.now() for higher precision
-            const _honeypotThreshold = 200; // ms, if execution takes longer than this, assume devtools
-            const _sizeThreshold = 160; // px
+            let _debuggerActive = false; // Flag to control debugger loop activation
+            let _honeypotTriggered = false; // New: Flag for honeypot activation
+
+            const _detectionInterval = 50; // ms, even more frequent checks
+            const _honeypotThreshold = 100; // ms, adjusted for more aggressive detection
+            const _sizeThreshold = 100; // px, adjusted for sensitivity
             const _consoleToStringLengthThreshold = 100; // arbitrary, based on typical native console.clear().toString() length
 
-            const _origConsole = {
-                log: console.log,
-                warn: console.warn,
-                error: console.error,
-                info: console.info,
-                debug: console.debug,
-                clear: console.clear,
-                table: console.table,
-                profile: console.profile, // Capture original if exists
-                timeline: console.timeline // Capture original if exists
-            };
-
-            // Function to enable/disable console baiting
-            const _toggleConsoleBaiting = (enable) => {
-                if (enable) {
-                    console.log = function() { _origConsole.clear(); _origConsole.log('%c停止！这是开发工具的专用区域！', 'color: red; font-size: 2em;'); };
-                    console.warn = function() { _origConsole.clear(); _origConsole.warn('%c停止！这是开发工具的专用区域！', 'color: orange; font-size: 2em;'); };
-                    console.error = function() { _origConsole.clear(); _origConsole.error('%c停止！这是开发工具的专用区域！', 'color: red; font-size: 2em;'); };
-                    console.info = function() { _origConsole.clear(); _origConsole.info('%c停止！这是开发工具的专用区域！', 'color: lightblue; font-size: 2em;'); };
-                    console.debug = function() { _origConsole.clear(); _origConsole.debug('%c停止！这是开发工具的专用区域！', 'color: gray; font-size: 2em;'); };
-                    console.table = function() { _origConsole.clear(); _origConsole.table([{message: '停止！这是开发工具的专用区域！', type: '警告'}], ['message', 'type']); };
-                    console.clear = function() {}; // Prevent clearing by external calls
-                    // Also bait less common console methods if they exist
-                    if (console.profile) console.profile = function() { _origConsole.clear(); _origConsole.log('%c停止！', 'color: purple;'); };
-                    if (console.timeline) console.timeline = function() { _origConsole.clear(); _origConsole.log('%c停止！', 'color: teal;'); };
-                } else {
-                    console.log = _origConsole.log;
-                    console.warn = _origConsole.warn;
-                    console.error = _origConsole.error;
-                    console.info = _origConsole.info;
-                    console.debug = _origConsole.debug;
-                    console.clear = _origConsole.clear;
-                    console.table = _origConsole.table;
-                    if (console.profile) console.profile = _origConsole.profile;
-                    if (console.timeline) console.timeline = _origConsole.timeline;
+            const _origConsole = {};
+            for (const key in console) {
+                if (typeof console[key] === 'function') {
+                    _origConsole[key] = console[key];
                 }
-            };
+            }
 
-            const _startDebuggerLoop = () => {
-                if (!_debuggerLoopId) {
+            // Function to actively bait and trap when devtools are open
+            const _trapConsole = () => {
+                if (_devtoolsOpen && !_debuggerActive) {
+                    _debuggerActive = true;
                     const loop = () => {
-                        debugger;
-                        if (_devtoolsOpen) {
-                            _debuggerLoopId = requestAnimationFrame(loop);
+                        try {
+                            // Try to trigger debugger, wrapped in eval for slight obfuscation
+                            (function() {
+                                return Function('debugger').apply(null, arguments);
+                            })();
+                        } catch (e) {
+                            // Continue even if debugger fails
+                        }
+                        if (_devtoolsOpen) { // Only continue if devtools are still detected
+                            requestAnimationFrame(loop);
                         } else {
-                            cancelAnimationFrame(_debuggerLoopId);
-                            _debuggerLoopId = null;
+                            _debuggerActive = false;
                         }
                     };
-                    _debuggerLoopId = requestAnimationFrame(loop);
+                    requestAnimationFrame(loop);
+                }
+
+                // Overwrite console methods to clear and print warning
+                for (const key in _origConsole) {
+                    if (typeof _origConsole[key] === 'function') {
+                        console[key] = function() {
+                            _origConsole.clear();
+                            _origConsole.log('%c停止！这是开发工具的专用区域！', 'color: red; font-size: 2em;');
+                            // Add a tiny delay before calling original to ensure clear happens first visually
+                            // setTimeout(() => _origConsole[key].apply(_origConsole, arguments), 1);
+                        };
+                    }
+                }
+                console.clear = function() {}; // Prevent clearing by external calls
+            };
+
+            // Function to restore console methods
+            const _restoreConsole = () => {
+                _debuggerActive = false; // Stop any active debugger loop
+                for (const key in _origConsole) {
+                    if (typeof _origConsole[key] === 'function') {
+                        console[key] = _origConsole[key];
+                    }
                 }
             };
 
-            const _stopDebuggerLoop = () => {
-                if (_debuggerLoopId) {
-                    cancelAnimationFrame(_debuggerLoopId);
-                    _debuggerLoopId = null;
-                }
-            };
-
-            // Honeypot function to detect time anomalies
-            const _honeypotCheck = () => {
+            // Honeypot for time anomalies
+            let _lastHoneypotExecutionTime = performance.now();
+            const _honeypotTimingCheck = () => { // Renamed for clarity
                 const currentTime = performance.now();
-                const timeDiff = currentTime - _lastHoneypotTime;
-                _lastHoneypotTime = currentTime; // Reset for next check
-
+                const timeDiff = currentTime - _lastHoneypotExecutionTime;
+                _lastHoneypotExecutionTime = currentTime;
                 if (timeDiff > _honeypotThreshold) {
-                    _origConsole.warn('%c检测到可疑活动！(计时异常)', 'color: yellow; font-size: 1.5em;');
+                    _origConsole.warn('%c可疑计时活动检测！', 'color: yellow; font-size: 1.5em;');
                     return true;
                 }
                 return false;
             };
 
-            // Property descriptor check for console methods
-            const _consolePropertyDescriptorCheck = () => {
-                let detected = false;
+            // Check for `debugger` keyword in a dynamically created function's toString()
+            const _debuggerKeywordCheck = () => {
                 try {
-                    // Check if console.clear's toString representation is unusually long.
-                    // This often changes when devtools are open.
-                    if (console.clear && console.clear.toString().length > _consoleToStringLengthThreshold) {
-                        _origConsole.warn('%c检测到可疑活动！(控制台函数 toString 异常)', 'color: yellow; font-size: 1.5em;');
-                        detected = true;
+                    // More general `toString` tampering check
+                    if (Function.prototype.toString.toString().indexOf('debugger') !== -1) {
+                        _origConsole.warn('%c函数原型 toString 异常！', 'color: yellow; font-size: 1.5em;');
+                        return true;
                     }
-                    // More subtle check: Function.prototype.toString property descriptor
-                    // DevTools sometimes modify this to inject their own logic for source mapping, etc.
-                    const funcProtoToString = Object.getOwnPropertyDescriptor(Function.prototype, 'toString');
-                    if (funcProtoToString && funcProtoToString.value && funcProtoToString.value.toString().indexOf('debugger') !== -1) {
-                         _origConsole.warn('%c检测到可疑活动！(函数原型 toString 异常)', 'color: yellow; font-size: 1.5em;');
-                         detected = true;
-                    }
-                } catch (e) {
-                    // Ignore errors during check, could be a very locked-down environment
-                }
-                return detected;
-            };
-
-            // New: View-source protocol check
-            const _viewSourceCheck = () => {
-                if (window.location.protocol === 'view-source:') {
-                    _origConsole.error('%c检测到非法查看源码！', 'color: red; font-size: 2em;');
-                    // Immediately redirect to the normal URL
-                    window.location.replace(window.location.href.replace('view-source:', ''));
-                    return true; // Indicate detection and action taken
-                }
+                } catch (e) { /* ignore */ }
                 return false;
             };
 
-            const _detectDevTools = () => {
+
+            // Main detection loop
+            const _mainDetectionLoop = () => {
                 const oldDevtoolsOpen = _devtoolsOpen;
 
-                // Check for view-source first, as it's a direct bypass attempt
-                if (_viewSourceCheck()) {
-                    _devtoolsOpen = true; // Assume devtools is open if view-source is active
-                    _startDebuggerLoop(); // Immediately trigger debugger
-                    _toggleConsoleBaiting(true); // Start console baiting
-                    return; // Stop further checks, action taken
-                }
+                // General window size change detection
+                const sizeDiffCheck = window.outerWidth - window.innerWidth > _sizeThreshold ||
+                                      window.outerHeight - window.innerHeight > _sizeThreshold;
 
-                // Method 1: Check window size difference
-                const sizeCheck = window.outerWidth - window.innerWidth > _sizeThreshold ||
-                                  window.outerHeight - window.innerHeight > _sizeThreshold;
+                // `toString` trick for functions (common for browser devtools)
+                const toStringTamperCheck = /./.toString.constructor.name === 'Function' &&
+                                            /./.toString.constructor.toString().indexOf('debugger') !== -1;
 
-                // Method 2: toString trick for general functions
-                const toStringCheck = /./.toString.constructor === 'function' &&
-                                      /./.toString.constructor.name !== 'Function';
+                // Honeypot for execution time anomalies
+                const honeypotTimingCheckResult = _honeypotTimingCheck();
 
-                // Method 3: Time honeypot
-                const honeypotCheck = _honeypotCheck();
+                // Check if specific console methods' toString representation is too long
+                let consoleMethodToStringCheck = false;
+                try {
+                    if (typeof console.clear === 'function' && console.clear.toString().length > _consoleToStringLengthThreshold) {
+                        consoleMethodToStringCheck = true;
+                    }
+                } catch (e) { /* ignore */ }
 
-                // Method 4: Console property descriptor check
-                const consoleDescriptorCheck = _consolePropertyDescriptorCheck();
 
-                _devtoolsOpen = sizeCheck || toStringCheck || honeypotCheck || consoleDescriptorCheck;
+                // --- Combine all checks ---
+                _devtoolsOpen = sizeDiffCheck || toStringTamperCheck || honeypotTimingCheckResult || consoleMethodToStringCheck || _debuggerKeywordCheck() || _honeypotTriggered;
+
 
                 if (_devtoolsOpen && !oldDevtoolsOpen) {
-                    _startDebuggerLoop();
-                    _toggleConsoleBaiting(true);
+                    _trapConsole(); // Activate baiting and debugger loop
                 } else if (!_devtoolsOpen && oldDevtoolsOpen) {
-                    _stopDebuggerLoop();
-                    _toggleConsoleBaiting(false);
+                    _restoreConsole(); // Restore console and stop debugger loop
                 }
 
-                // Continuously clear console if open, even if not actively in debugger loop
+                // Always clear console if devtools are detected as open (even if baiting isn't fully active yet)
                 if (_devtoolsOpen) {
                     _origConsole.clear();
                 }
             };
 
-            // Periodically check for devtools. (Reduced interval for quicker detection)
-            setInterval(_detectDevTools, 100);
+            // NEW: Honeypot event listener setup (ensure DOM is ready)
+            document.addEventListener('DOMContentLoaded', () => {
+                const honeypotDiv = document.getElementById('honeypot-trap-div');
+                if (honeypotDiv) {
+                    // Use mouseover or any other event that a scraper might trigger during DOM traversal
+                    honeypotDiv.addEventListener('mouseover', () => {
+                        _honeypotTriggered = true;
+                        _origConsole.warn('%c蜜罐触发！检测到可疑自动化行为！', 'color: red; font-size: 1.8em;');
+                        // Immediately trigger the main detection loop to activate traps
+                        _mainDetectionLoop();
+                    }, { once: true }); // Only trigger once to avoid spamming
+                }
+            });
 
-            // Also check on resize (when devtools are opened/closed, window often resizes)
-            window.addEventListener('resize', _detectDevTools);
+
+            // Initial message
+            _origConsole.log('%cAndroid 工具箱 - 欢迎！', 'color: #007aff; font-size: 1.2em;');
+            _origConsole.log('%c请勿尝试非法获取网站内容或进行恶意操作。', 'color: #f0f0f0; font-size: 1em;');
+
+            // Run detection loop frequently
+            setInterval(_mainDetectionLoop, _detectionInterval);
+            window.addEventListener('resize', _mainDetectionLoop);
 
             // --- Optional Anti-DevTools Measures (can severely impact user experience) ---
             // Uncomment these lines if you need more aggressive protection and accept the UX trade-offs.
@@ -651,9 +679,6 @@
             });
 
             // --- End of Optional Measures ---
-
-            _origConsole.log('%cAndroid 工具箱 - 欢迎！', 'color: #007aff; font-size: 1.2em;');
-            _origConsole.log('%c请勿尝试非法获取网站内容或进行恶意操作。', 'color: #f0f0f0; font-size: 1em;');
 
         })();
         // End of Anti-DevTools Code
