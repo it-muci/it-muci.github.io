@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南天门计划 - 地球防御倡议</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --deep-space: #0a0e17;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bd00ff;
+            --gold-accent: #ffd700;
+            --hologram-green: #00ff9d;
+            --text-glow: 0 0 10px rgba(0, 243, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--deep-space);
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        #vanta-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 导航栏样式 */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 14, 23, 0.8);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            margin-right: 10px;
+            text-shadow: var(--text-glow);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav li {
+            margin: 0 15px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--neon-blue);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-blue);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* 主区域样式 */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding-top: 80px;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(189, 0, 255, 0.5);
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            max-width: 700px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(189, 0, 255, 0.7);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        /* 模型展示区域 */
+        .model-showcase {
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 70px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+        }
+
+        .models-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .model-card {
+            background: rgba(30, 35, 60, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+
+        .model-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+            text-shadow: var(--text-glow);
+        }
+
+        .model-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--neon-blue);
+        }
+
+        .model-card p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .model-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--hologram-green);
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 技术展示 */
+        .tech-showcase {
+            padding: 100px 0;
+            background: rgba(10, 15, 30, 0.6);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .tech-card {
+            background: rgba(20, 25, 50, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(189, 0, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 35, 70, 0.6);
+            box-shadow: 0 10px 25px rgba(189, 0, 255, 0.2);
+        }
+
+        .tech-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--neon-purple);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tech-card h3 i {
+            margin-right: 10px;
+            color: var(--neon-purple);
+        }
+
+        /* 时间线 */
+        .timeline-section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 50px auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background: linear-gradient(to bottom, var(--neon-blue), var(--neon-purple));
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            padding: 20px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+
+        .timeline-content {
+            background: rgba(30, 35, 60, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            right: -15px;
+            border-width: 8px 0 8px 16px;
+            border-style: solid;
+            border-color: transparent transparent transparent rgba(30, 35, 60, 0.6);
+        }
+
+        .timeline-item:nth-child(even) .timeline-content::before {
+            left: -15px;
+            border-width: 8px 16px 8px 0;
+            border-color: transparent rgba(30, 35, 60, 0.6) transparent transparent;
+        }
+
+        .timeline-year {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--gold-accent);
+            margin-bottom: 10px;
+        }
+
+        /* 加入我们页面 */
+        .join-section {
+            padding: 100px 0;
+        }
+
+        .join-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .join-card {
+            background: rgba(30, 35, 60, 0.4);
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .join-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+
+        .join-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+        }
+
+        .card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            color: var(--neon-blue);
+            text-shadow: var(--text-glow);
+        }
+
+        .join-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+        }
+
+        .join-card p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+        }
+
+        .benefits-list {
+            text-align: left;
+            margin: 25px 0;
+            padding: 0 20px;
+        }
+
+        .benefits-list li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .benefits-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--hologram-green);
+            font-weight: bold;
+        }
+
+        /* 职位列表 */
+        .positions-section {
+            background: rgba(10, 15, 30, 0.6);
+            padding: 100px 0;
+        }
+
+        .positions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .position-card {
+            background: rgba(20, 25, 50, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(189, 0, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .position-card:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 35, 70, 0.6);
+            box-shadow: 0 10px 25px rgba(189, 0, 255, 0.2);
+        }
+
+        .position-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            color: var(--neon-purple);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .position-card h3 i {
+            margin-right: 12px;
+            color: var(--neon-purple);
+        }
+
+        .position-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .info-item i {
+            color: var(--hologram-green);
+            margin-right: 8px;
+        }
+
+        .position-description {
+            margin: 20px 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .requirements {
+            margin: 20px 0;
+        }
+
+        .requirements h4 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            margin-bottom: 10px;
+        }
+
+        .requirements ul {
+            padding-left: 20px;
+        }
+
+        .requirements li {
+            margin-bottom: 8px;
+        }
+
+        .apply-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: transparent;
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            border-radius: 50px;
+            font-family: 'Exo 2', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+
+        .apply-btn:hover {
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        /* 申请表单 */
+        .application-section {
+            padding: 100px 0;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(30, 35, 60, 0.4);
+            border-radius: 15px;
+            padding: 50px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--neon-blue);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--neon-blue);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            background: rgba(20, 25, 40, 0.7);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            padding: 15px 50px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(189, 0, 255, 0.7);
+        }
+
+        /* 页脚 */
+        footer {
+            background: rgba(5, 10, 20, 0.9);
+            padding: 60px 0 30px;
+            border-top: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-links h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--neon-blue);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+            
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+            
+            .timeline-content::before {
+                left: 35px;
+                border-width: 8px 16px 8px 0;
+                border-color: transparent rgba(30, 35, 60, 0.6) transparent transparent;
+                right: auto;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            nav ul {
+                display: none;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .form-container {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态背景 -->
+    <div id="vanta-bg"></div>
+
+    <!-- 导航栏 -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="logo-text">南天门计划</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#models">防御系统</a></li>
+                    <li><a href="#tech">核心技术</a></li>
+                    <li><a href="#timeline">发展历程</a></li>
+                    <li><a href="#join">加入我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主区域 -->
+    <section class="hero" id="home">
+        <div class="container hero-content">
+            <h1>南天门计划</h1>
+            <p>人类最后的防线 - 融合最先进科技的地球轨道防御系统</p>
+            <p>在近地轨道部署的先进防御网络，结合人工智能、量子计算和反物质能源技术，保护地球免受来自宇宙的威胁。</p>
+            <a href="#models" class="cta-button">探索防御系统</a>
+        </div>
+    </section>
+
+    <!-- 模型展示 -->
+    <section class="model-showcase" id="models">
+        <div class="container">
+            <h2 class="section-title">防御系统</h2>
+            <div class="models-container">
+                <div class="model-card">
+                    <div class="model-icon">
+                        <i class="fas fa-space-shuttle"></i>
+                    </div>
+                    <h3>玄女空天战机</h3>
+                    <p>高超音速空天战机，配备等离子武器和能量护盾，可在3分钟内从地面到达近地轨道。</p>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">25马赫</div>
+                            <div class="stat-label">最高速度</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">武器系统</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>承影战术机甲</h3>
+                    <p>多地形作战机甲，配备高能粒子炮和动态护盾，可适应太空、大气层及地表作战。</p>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">85吨</div>
+                            <div class="stat-label">战斗重量</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">360°</div>
+                            <div class="stat-label">防御范围</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-icon">
+                        <i class="fas fa-satellite"></i>
+                    </div>
+                    <h3>鸾鸟空天母舰</h3>
+                    <p>轨道指挥中心与武器平台，长248米，可搭载86架玄女战机，配备反物质主炮。</p>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <div class="stat-value">1.2GW</div>
+                            <div class="stat-label">能源输出</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">48</div>
+                            <div class="stat-label">防御阵列</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技术展示 -->
+    <section class="tech-showcase" id="tech">
+        <div class="container">
+            <h2 class="section-title">核心技术</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h3><i class="fas fa-atom"></i> 反物质能源核心</h3>
+                    <p>采用粒子加速器产生并储存反物质，为整个系统提供近乎无限的清洁能源，能量密度是核聚变的100倍。</p>
+                </div>
+                <div class="tech-card">
+                    <h3><i class="fas fa-shield-alt"></i> 量子护盾系统</h3>
+                    <p>通过量子纠缠原理生成能量屏障，可抵御动能武器和高能粒子束攻击，瞬间响应时间仅0.03秒。</p>
+                </div>
+                <div class="tech-card">
+                    <h3><i class="fas fa-brain"></i> 女娲人工智能</h3>
+                    <p>分布式量子AI系统，每秒可处理1.8泽塔字节数据，实时协调全球防御网络，预测威胁准确率达99.7%。</p>
+                </div>
+                <div class="tech-card">
+                    <h3><i class="fas fa-bolt"></i> 等离子武器阵列</h3>
+                    <p>磁约束等离子体加速技术，发射温度达1亿摄氏度的高能粒子束，有效射程达3.8万公里。</p>
+                </div>
+                <div class="tech-card">
+                    <h3><i class="fas fa-sync-alt"></i> 即时物质重组</h3>
+                    <p>纳米机器人修复技术，可在战场实时修复受损设备，重组分子结构，恢复效率提升300%。</p>
+                </div>
+                <div class="tech-card">
+                    <h3><i class="fas fa-tachometer-alt"></i> 曲速推进系统</h3>
+                    <p>通过扭曲局部空间实现超光速移动，在太阳系内任意两点间航行时间不超过72小时。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 时间线 -->
+    <section class="timeline-section" id="timeline">
+        <div class="container">
+            <h2 class="section-title">发展历程</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2035</div>
+                        <h3>计划启动</h3>
+                        <p>全球防御理事会批准南天门计划，联合12个国家启动第一阶段研发工作。</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2042</div>
+                        <h3>反物质突破</h3>
+                        <p>CERN实验室成功实现反物质稳定储存，解决计划能源问题。</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2048</div>
+                        <h3>玄女首飞</h3>
+                        <p>第一代玄女空天战机完成大气层往返测试，最高速度达18马赫。</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2055</div>
+                        <h3>鸾鸟升空</h3>
+                        <p>首艘鸾鸟级空天母舰在近地轨道完成组装，建立首个轨道防御平台。</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2060</div>
+                        <h3>全球防御网</h3>
+                        <p>完成全球12个轨道防御平台部署，形成完整的近地轨道防御网络。</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">2065</div>
+                        <h3>女娲AI上线</h3>
+                        <p>量子人工智能"女娲"系统全面接管防御网络，反应时间缩短至毫秒级。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 加入我们部分 -->
+    <section class="join-section" id="join">
+        <div class="container">
+            <h2 class="section-title">加入我们</h2>
+            <div class="join-grid">
+                <div class="join-card">
+                    <div class="card-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>科研岗位</h3>
+                    <p>参与前沿科技研发，推动人类科技边界</p>
+                    <ul class="benefits-list">
+                        <li>参与反物质能源核心研发</li>
+                        <li>量子护盾系统优化</li>
+                        <li>女娲AI系统开发</li>
+                        <li>等离子武器阵列升级</li>
+                        <li>即时物质重组技术研究</li>
+                    </ul>
+                    <a href="#application" class="apply-btn">立即申请</a>
+                </div>
+
+                <div class="join-card">
+                    <div class="card-icon">
+                        <i class="fas fa-fighter-jet"></i>
+                    </div>
+                    <h3>防御部队</h3>
+                    <p>成为地球防线的守护者，保卫人类文明</p>
+                    <ul class="benefits-list">
+                        <li>玄女空天战机驾驶员</li>
+                        <li>承影战术机甲操作员</li>
+                        <li>轨道防御平台指挥官</li>
+                        <li>空间作战策略专家</li>
+                        <li>防御系统安全主管</li>
+                    </ul>
+                    <a href="#application" class="apply-btn">立即申请</a>
+                </div>
+
+                <div class="join-card">
+                    <div class="card-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>技术支持</h3>
+                    <p>确保防御系统稳定运行，提供技术保障</p>
+                    <ul class="benefits-list">
+                        <li>空天母舰维护工程师</li>
+                        <li>量子计算系统管理员</li>
+                        <li>能源网络技术专家</li>
+                        <li>通信系统工程师</li>
+                        <li>纳米机器人技术员</li>
+                    </ul>
+                    <a href="#application" class="apply-btn">立即申请</a>
+                </div>
+
+                <div class="join-card">
+                    <div class="card-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3>志愿者计划</h3>
+                    <p>为人类防御事业贡献你的力量</p>
+                    <ul class="benefits-list">
+                        <li>地面支持志愿者</li>
+                        <li>公众教育推广</li>
+                        <li>紧急响应小组</li>
+                        <li>技术培训助理</li>
+                        <li>空间站生活支持</li>
+                    </ul>
+                    <a href="#application" class="apply-btn">立即申请</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 职位列表 -->
+    <section class="positions-section">
+        <div class="container">
+            <h2 class="section-title">热门职位</h2>
+            <div class="positions-grid">
+                <div class="position-card">
+                    <h3><i class="fas fa-atom"></i> 反物质工程师</h3>
+                    <div class="position-info">
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i> 轨道站-天门
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i> 全职
+                        </div>
+                    </div>
+                    <div class="position-description">
+                        负责反物质能源核心的设计、测试与优化，确保能源系统的稳定供应。
+                    </div>
+                    <div class="requirements">
+                        <h4>任职要求</h4>
+                        <ul>
+                            <li>量子物理学或高能物理博士学位</li>
+                            <li>5年以上粒子加速器研究经验</li>
+                            <li>熟悉磁约束技术</li>
+                            <li>具备安全操作高能系统的认证</li>
+                        </ul>
+                    </div>
+                    <a href="#application" class="apply-btn">申请此职位</a>
+                </div>
+
+                <div class="position-card">
+                    <h3><i class="fas fa-space-shuttle"></i> 空天战机驾驶员</h3>
+                    <div class="position-info">
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i> 全球部署
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i> 全职
+                        </div>
+                    </div>
+                    <div class="position-description">
+                        操作玄女空天战机执行巡逻、防御和紧急任务，保卫地球轨道安全。
+                    </div>
+                    <div class="requirements">
+                        <h4>任职要求</h4>
+                        <ul>
+                            <li>空军或航天部队服役经历</li>
+                            <li>1000小时以上飞行经验</li>
+                            <li>通过G力耐受测试</li>
+                            <li>空间方位感优秀</li>
+                        </ul>
+                    </div>
+                    <a href="#application" class="apply-btn">申请此职位</a>
+                </div>
+
+                <div class="position-card">
+                    <h3><i class="fas fa-brain"></i> AI系统架构师</h3>
+                    <div class="position-info">
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i> 上海/轨道站
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i> 全职
+                        </div>
+                    </div>
+                    <div class="position-description">
+                        设计和维护女娲AI系统架构，优化全球防御网络的决策效率。
+                    </div>
+                    <div class="requirements">
+                        <h4>任职要求</h4>
+                        <ul>
+                            <li>计算机科学或AI相关博士学位</li>
+                            <li>量子计算系统开发经验</li>
+                            <li>熟悉分布式系统架构</li>
+                            <li>具备大规模实时系统设计经验</li>
+                        </ul>
+                    </div>
+                    <a href="#application" class="apply-btn">申请此职位</a>
+                </div>
+
+                <div class="position-card">
+                    <h3><i class="fas fa-shield-alt"></i> 护盾系统技术员</h3>
+                    <div class="position-info">
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i> 轨道防御平台
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i> 全职
+                        </div>
+                    </div>
+                    <div class="position-description">
+                        维护和优化量子护盾系统，确保防御屏障的稳定性和响应速度。
+                    </div>
+                    <div class="requirements">
+                        <h4>任职要求</h4>
+                        <ul>
+                            <li>工程学或物理学硕士学位</li>
+                            <li>能量场技术相关经验</li>
+                            <li>熟悉量子纠缠原理应用</li>
+                            <li>能在高压环境下工作</li>
+                        </ul>
+                    </div>
+                    <a href="#application" class="apply-btn">申请此职位</a>
+                </div>
+
+                <div class="position-card">
+                    <h3><i class="fas fa-robot"></i> 机甲维护工程师</h3>
+                    <div class="position-info">
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i> 全球基地
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i> 全职
+                        </div>
+                    </div>
+                    <div class="position-description">
+                        负责承影战术机甲的日常维护、维修和升级，确保作战单元的最佳状态。
+                    </div>
+                    <div class="requirements">
+                        <h4>任职要求</h4>
+                        <ul>
+                            <li>机械工程或机器人学学位</li>
+                            <li>大型机械系统维护经验</li>
+                            <li>熟悉纳米修复技术</li>
+                            <li>能适应多环境工作</li>
+                        </ul>
+                    </div>
+                    <a href="#application" class="apply-btn">申请此职位</a>
+                </div>
+
+                <div class="position-card">
+                    <h3><i class="fas fa-users"></i> 公众教育协调员</h3>
+                    <div class="position-info">
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i> 全球主要城市
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-briefcase"></i> 兼职/志愿者
+                        </div>
+                    </div>
+                    <div class="position-description">
+                        向公众普及空间防御知识，组织教育活动，提升人类共同体意识。
+                    </div>
+                    <div class="requirements">
+                        <h4>任职要求</h4>
+                        <ul>
+                            <li>优秀的沟通能力</li>
+                            <li>教育或公共关系背景</li>
+                            <li>对太空科技有热情</li>
+                            <li>能进行多语言交流</li>
+                        </ul>
+                    </div>
+                    <a href="#application" class="apply-btn">申请此职位</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 申请表单 -->
+    <section class="application-section" id="application">
+        <div class="container">
+            <h2 class="section-title">加入申请</h2>
+            <div class="form-container">
+                <h3 class="form-title">南天门计划申请表</h3>
+                <form id="join-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-name">名字</label>
+                            <input type="text" id="first-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last-name">姓氏</label>
+                            <input type="text" id="last-name" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">电子邮箱</label>
+                            <input type="email" id="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">联系电话</label>
+                            <input type="tel" id="phone" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="position">申请职位</label>
+                        <select id="position" class="form-control" required>
+                            <option value="">请选择职位</option>
+                            <option value="research">科研岗位</option>
+                            <option value="defense">防御部队</option>
+                            <option value="tech">技术支持</option>
+                            <option value="volunteer">志愿者计划</option>
+                            <option value="pilot">空天战机驾驶员</option>
+                            <option value="engineer">反物质工程师</option>
+                            <option value="ai">AI系统架构师</option>
+                            <option value="shield">护盾系统技术员</option>
+                            <option value="mecha">机甲维护工程师</option>
+                            <option value="education">公众教育协调员</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience">相关经验</label>
+                        <textarea id="experience" class="form-control" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="motivation">申请动机</label>
+                        <textarea id="motivation" class="form-control" rows="4" placeholder="请说明您为什么想加入南天门计划..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="resume">上传简历 (PDF, DOC, DOCX)</label>
+                        <input type="file" id="resume" class="form-control" accept=".pdf,.doc,.docx" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">提交申请</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <div class="footer-logo">南天门计划</div>
+                    <p>保护地球文明的最后防线<br>为人类的未来而战</p>
+                </div>
+                <div class="footer-links">
+                    <h3>快速链接</h3>
+                    <ul>
+                        <li><a href="#home">首页</a></li>
+                        <li><a href="#models">防御系统</a></li>
+                        <li><a href="#tech">核心技术</a></li>
+                        <li><a href="#timeline">发展历程</a></li>
+                        <li><a href="#join">加入我们</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>加入我们</h3>
+                    <ul>
+                        <li><a href="#join">科研岗位</a></li>
+                        <li><a href="#join">防御部队</a></li>
+                        <li><a href="#join">技术支持</a></li>
+                        <li><a href="#join">志愿者计划</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>联系我们</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> 地球同步轨道站-天门</li>
+                        <li><i class="fas fa-envelope"></i> contact@nantianmen.org</li>
+                        <li><i class="fas fa-phone-alt"></i> +86 21 2088 8888</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2065 南天门计划 - 地球防御倡议 | 本网站展示内容均为虚构概念设计</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化Vanta.js背景
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x00f3ff,
+            backgroundColor: 0x0a0e17,
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 17.00
+        });
+
+        // 滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // 动态数据更新效果
+        const stats = document.querySelectorAll('.stat-value');
+        stats.forEach(stat => {
+            const finalValue = parseFloat(stat.textContent);
+            let currentValue = 0;
+            
+            const increment = finalValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    clearInterval(timer);
+                    currentValue = finalValue;
+                }
+                
+                if (Number.isInteger(finalValue)) {
+                    stat.textContent = Math.floor(currentValue);
+                } else {
+                    stat.textContent = currentValue.toFixed(1);
+                }
+            }, 30);
+        });
+
+        // 3D模型占位效果（实际项目中会替换为真实3D模型）
+        const modelIcons = document.querySelectorAll('.model-icon');
+        modelIcons.forEach(icon => {
+            icon.addEventListener('mouseenter', () => {
+                icon.style.transform = 'rotateY(360deg)';
+                icon.style.transition = 'transform 1s ease';
+            });
+            
+            icon.addEventListener('mouseleave', () => {
+                icon.style.transform = 'rotateY(0deg)';
+            });
+        });
+
+        // 卡片悬停效果
+        const cards = document.querySelectorAll('.join-card, .position-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+
+        // 表单提交处理
+        document.getElementById('join-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const formData = {
+                firstName: document.getElementById('first-name').value,
+                lastName: document.getElementById('last-name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                position: document.getElementById('position').value,
+                experience: document.getElementById('experience').value,
+                motivation: document.getElementById('motivation').value
+            };
+            
+            // 显示提交成功信息
+            alert(`感谢提交申请，${formData.firstName} ${formData.lastName}！\n我们已收到您对${formData.position}职位的申请，将在3个工作日内联系您。`);
+            
+            // 重置表单
+            this.reset();
+        });
+    </script>
+</body>
+</html>
